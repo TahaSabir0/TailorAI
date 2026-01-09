@@ -1,0 +1,32 @@
+{
+  "name": "tailorai",
+  "version": "1.0.0",
+  "description": "AI-powered cover letter generator Chrome extension",
+  "main": "background/background.js",
+  "scripts": {
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "chrome-extension",
+    "cover-letter",
+    "ai",
+    "openai",
+    "job-application",
+    "resume",
+    "cv"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "jspdf": "^2.5.1"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/tailorai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/tailorai/issues"
+  },
+  "homepage": "https://github.com/yourusername/tailorai#readme"
+}

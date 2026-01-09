@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TailorAI</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>TailorAI</h1>
+      <button id="settingsBtn" class="icon-btn" title="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3"></path>
+          <path d="M19.071 19.071L15.5 15.5m0-7l3.571-3.571M4.929 4.929L8.5 8.5m0 7l-3.571 3.571"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="status-section" id="statusSection">
+      <div class="status-message" id="statusMessage">
+        <span class="status-icon">ℹ️</span>
+        <span id="statusText">Upload your CV to get started</span>
+      </div>
+    </div>
+
+    <div class="main-section">
+      <button id="tailorBtn" class="tailor-btn" disabled>
+        <span class="btn-text">Tailor</span>
+        <span class="loader" style="display: none;"></span>
+      </button>
+      <p class="hint-text">Click to generate a cover letter for this job posting</p>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel" style="display: none;">
+      <div class="settings-header">
+        <h2>Settings</h2>
+        <button id="closeSettingsBtn" class="close-btn">×</button>
+      </div>
+
+      <div class="settings-content">
+        <div class="setting-group">
+          <label for="cvUpload">Upload CV</label>
+          <div class="cv-status" id="cvStatus">
+            <p class="no-cv-text">No CV uploaded yet</p>
+          </div>
+          <input type="file" id="cvUpload" accept=".pdf,.docx" style="display: none;">
+          <button id="uploadCvBtn" class="secondary-btn">Choose CV File</button>
+          <button id="deleteCvBtn" class="danger-btn" style="display: none;">Delete CV</button>
+        </div>
+
+        <div class="setting-group">
+          <label for="apiKey">OpenAI API Key</label>
+          <input type="password" id="apiKey" placeholder="sk-..." />
+          <button id="saveApiKeyBtn" class="secondary-btn">Save API Key</button>
+          <p class="help-text">
+            Get your API key from
+            <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="message-section" id="messageSection" style="display: none;">
+      <p id="messageText"></p>
+    </div>
+  </div>
+
+  <!-- External libraries -->
+  <script src="../libs/mammoth.browser.min.js"></script>
+
+  <!-- Utility scripts -->
+  <script src="../utils/cvExtractor.js"></script>
+
+  <!-- Main popup script -->
+  <script src="popup.js"></script>
+</body>
+</html>
