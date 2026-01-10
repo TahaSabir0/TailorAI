@@ -415,3 +415,316 @@ If all checklist items pass, Stage 2 is complete and you're ready to move to Sta
 - Proper error handling and user feedback
 
 **Ready for Stage 3!**
+
+---
+
+## Stage 3: Job Posting Extraction
+
+### What's New in Stage 3
+
+Stage 3 implements job posting extraction from web pages, allowing the extension to automatically extract job details from popular job sites.
+
+**Features Implemented:**
+- Enhanced job posting extraction in content.js
+- Site-specific extractors for LinkedIn, Indeed, and Glassdoor (updated for 2026)
+- Generic extractor for other job sites
+- Message passing between content script and popup
+- Active tab job data extraction
+- Job data storage in chrome.storage.local
+- Enhanced status display showing extracted job information
+- Error handling with helpful messages
+
+**Supported Job Sites:**
+- LinkedIn Jobs
+- Indeed
+- Glassdoor
+- Generic job sites (best-effort extraction)
+
+### Step 1: Reload the Extension
+
+After implementing Stage 3:
+
+1. Go to `chrome://extensions/`
+2. Click the refresh (↻) icon on TailorAI
+3. Verify no errors appear
+
+### Step 2: Test on LinkedIn
+
+1. **Navigate to a LinkedIn Job Posting**:
+   - Go to [LinkedIn Jobs](https://www.linkedin.com/jobs/)
+   - Search for any job (e.g., "Software Engineer")
+   - Click on a job posting to view details
+
+2. **Extract Job Data**:
+   - Make sure you have uploaded your CV (from Stage 2)
+   - Click the TailorAI extension icon
+   - Click the "Tailor" button
+   - You should see "Extracting job posting..." message
+
+3. **Verify Success**:
+   - Status should update to show: "Found: [Job Title] at [Company]"
+   - Success message: "Job posting extracted: [Job Title]"
+   - Console should show extracted job data
+
+4. **Check Console for Details**:
+   - Right-click extension icon → "Inspect popup"
+   - Check Console tab
+   - Should see logs like:
+     - "Job data extracted: {jobTitle, company, description, location, source: 'LinkedIn'}"
+
+### Step 3: Test on Indeed
+
+1. **Navigate to an Indeed Job Posting**:
+   - Go to [Indeed](https://www.indeed.com)
+   - Search for any job
+   - Click on a job posting
+
+2. **Extract Job Data**:
+   - Click the TailorAI extension icon
+   - Click the "Tailor" button
+
+3. **Verify Success**:
+   - Same verification as LinkedIn
+   - Console should show `source: 'Indeed'`
+
+### Step 4: Test on Glassdoor
+
+1. **Navigate to a Glassdoor Job Posting**:
+   - Go to [Glassdoor](https://www.glassdoor.com)
+   - Search for any job
+   - Click on a job posting
+
+2. **Extract Job Data**:
+   - Click the TailorAI extension icon
+   - Click the "Tailor" button
+
+3. **Verify Success**:
+   - Same verification as LinkedIn
+   - Console should show `source: 'Glassdoor'`
+
+### Step 5: Test on Generic Job Site
+
+1. **Navigate to Any Other Job Site**:
+   - Try sites like Monster, ZipRecruiter, company career pages, etc.
+   - Find a job posting
+
+2. **Extract Job Data**:
+   - Click the TailorAI extension icon
+   - Click the "Tailor" button
+
+3. **Verify**:
+   - Generic extractor will attempt to find job data
+   - May have varying success depending on site structure
+   - Console should show `source: 'Generic'`
+
+### Step 6: Test Error Handling
+
+1. **Test on Non-Job Page**:
+   - Navigate to a regular website (e.g., news site, Google homepage)
+   - Click TailorAI icon and "Tailor" button
+   - Should see error: "Could not extract job posting. Make sure you are on a job posting page."
+
+2. **Test Without CV**:
+   - Delete your CV (if uploaded)
+   - Navigate to a job posting
+   - Click "Tailor" button
+   - Should see error: "Please upload your CV first"
+
+3. **Test Page Refresh Issue**:
+   - Open a new tab with a job posting
+   - Without refreshing, immediately click TailorAI "Tailor" button
+   - Should see error: "Please refresh the job posting page and try again"
+   - Refresh the page and try again - should work
+
+### Step 7: Verify Job Data Persistence
+
+1. **Extract a job posting**
+2. **Check stored data**:
+   - Right-click extension icon → "Inspect popup"
+   - Go to Application tab → Storage → Local Storage
+   - Find `currentJobData` key
+   - Should contain: jobTitle, company, description, location, url, source
+
+3. **Close and reopen popup**:
+   - Status should still show the last extracted job
+   - Job data persists in storage
+
+## Stage 3 Verification Checklist
+
+- [ ] Extension reloads without errors
+- [ ] Can extract job data from LinkedIn
+- [ ] LinkedIn extraction includes: title, company, description, location
+- [ ] Can extract job data from Indeed
+- [ ] Indeed extraction includes all required fields
+- [ ] Can extract job data from Glassdoor
+- [ ] Glassdoor extraction includes all required fields
+- [ ] Generic extractor works on other job sites (best-effort)
+- [ ] Status message updates with extracted job info
+- [ ] Job data is stored in chrome.storage.local
+- [ ] Error shown when not on a job posting page
+- [ ] Error shown when CV not uploaded
+- [ ] Helpful error when content script not loaded
+- [ ] Console logs show detailed extraction info
+- [ ] No errors in popup or content script console
+
+## What Each Extractor Finds
+
+### LinkedIn Extractor
+- **Job Title**: From job details card
+- **Company**: Company name with link
+- **Description**: Full job description
+- **Location**: Job location (city, state, remote)
+- **Source**: 'LinkedIn'
+
+### Indeed Extractor
+- **Job Title**: From job info header
+- **Company**: Company name
+- **Description**: Full job description text
+- **Location**: Job location
+- **Source**: 'Indeed'
+
+### Glassdoor Extractor
+- **Job Title**: From job details
+- **Company**: Employer name
+- **Description**: Job description
+- **Location**: Job location
+- **Source**: 'Glassdoor'
+
+### Generic Extractor
+- **Job Title**: Best guess from h1, title, or class names
+- **Company**: Best guess from common selectors
+- **Description**: Main content or article text
+- **Location**: If found in common locations
+- **Source**: 'Generic'
+
+## Known Limitations in Stage 3
+
+These are expected and will be implemented in later stages:
+
+- ✓ Can upload and store CV (Stage 2 - COMPLETE)
+- ✓ Can extract job posting data (Stage 3 - COMPLETE)
+- ✗ "Tailor" button doesn't generate actual cover letters yet (Stage 4)
+- ✗ No OpenAI integration yet (Stage 4)
+- ✗ No PDF download yet (Stage 5)
+
+## Troubleshooting Stage 3
+
+### "Could not establish connection" Error
+
+**Problem**: Error message about connection when clicking Tailor
+
+**Solutions**:
+- Refresh the job posting page
+- The content script may not have loaded
+- Check that content.js is listed in manifest.json
+- Reload the extension completely
+- Close and reopen the tab
+
+### Job Data Not Extracted Correctly
+
+**Problem**: Missing job title, company, or description
+
+**Explanation**: Job sites frequently change their HTML structure. Our selectors may not match the current page.
+
+**Solutions**:
+- Check browser console (F12) for specific errors
+- Verify you're on an actual job posting (not search results)
+- Try a different job posting on the same site
+- For generic sites, extraction quality varies
+
+**Reporting Issues**:
+- If a major job site isn't working, note the URL and console errors
+- This helps improve the extractors
+
+### Content Script Not Loading
+
+**Problem**: Content script console log not appearing
+
+**Solutions**:
+- Verify manifest.json has correct content_scripts configuration
+- Check that content.js exists in content/ folder
+- Reload extension in chrome://extensions/
+- Hard refresh the webpage (Ctrl+Shift+R or Cmd+Shift+R)
+
+### Extracted Data is Messy
+
+**Problem**: Job description has too much extra text
+
+**Explanation**: The `cleanText()` function removes extra whitespace but can't filter all irrelevant content.
+
+**Impact**: This is OK - the OpenAI API (Stage 4) will intelligently parse the relevant parts.
+
+### Status Not Updating
+
+**Problem**: Status still shows old job or doesn't update
+
+**Solutions**:
+- Check console for errors
+- Verify job data was actually extracted (check console logs)
+- Try clicking Tailor button again
+- Close and reopen popup
+
+## Next Steps
+
+Once Stage 3 is verified:
+
+**Stage 4**: Add OpenAI Integration
+- Implement actual API calls to OpenAI
+- Generate personalized cover letters
+- Use CV and job data together
+- Add error handling and retry logic
+- Test with different job types
+
+**Stage 5**: Add PDF Generation
+- Integrate jsPDF library
+- Format cover letter as professional PDF
+- Add proper formatting and styling
+- Implement auto-download
+- Add customization options
+
+## Understanding the Architecture
+
+### Message Flow in Stage 3
+
+1. **User clicks "Tailor" button** → popup.js
+2. **popup.js validates** CV and API key exist
+3. **popup.js queries active tab** using chrome.tabs.query()
+4. **popup.js sends message** to content script via chrome.tabs.sendMessage()
+5. **content.js receives message** and calls extractJobData()
+6. **content.js detects site** (LinkedIn, Indeed, Glassdoor, or Generic)
+7. **content.js uses appropriate extractor** function
+8. **content.js cleans and validates** extracted data
+9. **content.js sends response** back to popup.js
+10. **popup.js stores job data** in chrome.storage.local
+11. **popup.js updates UI** with success message
+
+### File Structure for Stage 3
+
+```
+TailorAI/
+├── content/
+│   └── content.js          ← Enhanced with extractors
+├── popup/
+│   └── popup.js            ← Updated with extraction logic
+├── background/
+│   └── background.js       ← Ready for Stage 4
+└── manifest.json           ← Content scripts configured
+```
+
+---
+
+## Stage 3 Complete! ✅
+
+If all checklist items pass, Stage 3 is complete and you're ready to move to Stage 4.
+
+**What we built in Stage 3:**
+- Job posting extraction from LinkedIn, Indeed, Glassdoor
+- Generic extractor for other job sites
+- Message passing between popup and content scripts
+- Active tab detection and data extraction
+- Job data storage and persistence
+- Enhanced error handling with helpful messages
+- Detailed console logging for debugging
+- Updated for 2026 site structures
+
+**Ready for Stage 4!**

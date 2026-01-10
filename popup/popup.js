@@ -227,15 +227,32 @@ async function handleTailorClick() {
 
   // Show loading state
   setLoadingState(true);
-  showMessage('Generating your cover letter...', 'info');
+  showMessage('Extracting job posting...', 'info');
 
   try {
-    // This will be implemented in later stages
-    // For now, just show a placeholder message
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate delay
-    showMessage('Cover letter generation will be implemented in Stage 3-5', 'info');
+    // Stage 3: Extract job posting content from active tab
+    const jobData = await extractJobPostingFromActiveTab();
 
-    // TODO: Extract job posting content (Stage 3)
+    if (!jobData || !jobData.jobTitle || !jobData.description) {
+      showMessage('Could not extract job posting. Make sure you are on a job posting page.', 'error');
+      setLoadingState(false);
+      return;
+    }
+
+    console.log('Job data extracted:', jobData);
+
+    // Store job data for later use
+    await chrome.storage.local.set({ currentJobData: jobData });
+
+    // Update status to show job was found
+    updateStatusMessage('✅', `Found: ${jobData.jobTitle} at ${jobData.company || 'Unknown Company'}`, 'success');
+    showMessage(`Job posting extracted: ${jobData.jobTitle}`, 'success');
+
+    // Show that cover letter generation will be implemented in Stage 4-5
+    setTimeout(() => {
+      showMessage('Cover letter generation will be implemented in Stage 4-5', 'info');
+    }, 2000);
+
     // TODO: Call OpenAI API (Stage 4)
     // TODO: Generate PDF (Stage 5)
   } catch (error) {
@@ -243,6 +260,38 @@ async function handleTailorClick() {
     showMessage('Error: ' + error.message, 'error');
   } finally {
     setLoadingState(false);
+  }
+}
+
+// Extract job posting from active tab
+async function extractJobPostingFromActiveTab() {
+  try {
+    // Get active tab
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    if (!tab || !tab.id) {
+      throw new Error('No active tab found');
+    }
+
+    // Send message to content script to extract job data
+    const response = await chrome.tabs.sendMessage(tab.id, {
+      action: 'extractJobPosting'
+    });
+
+    if (response && response.success) {
+      return response.data;
+    } else {
+      throw new Error(response?.error || 'Failed to extract job posting');
+    }
+  } catch (error) {
+    console.error('Error extracting job posting:', error);
+
+    // Provide helpful error message
+    if (error.message.includes('Could not establish connection')) {
+      throw new Error('Please refresh the job posting page and try again');
+    }
+
+    throw error;
   }
 }
 

@@ -4,7 +4,7 @@
 console.log('TailorAI content script loaded');
 
 // Listen for messages from popup
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'extractJobPosting') {
     console.log('Extracting job posting data...');
 
@@ -53,55 +53,125 @@ function extractJobData() {
 
 // Extract job data from LinkedIn
 function extractLinkedInJob() {
+  // LinkedIn job title selectors (updated for 2026)
   const jobTitle = document.querySelector('h1.t-24')?.textContent ||
                    document.querySelector('.job-details-jobs-unified-top-card__job-title')?.textContent ||
+                   document.querySelector('.jobs-unified-top-card__job-title')?.textContent ||
+                   document.querySelector('h1.topcard__title')?.textContent ||
                    document.querySelector('[class*="job-title"]')?.textContent ||
+                   document.querySelector('h1')?.textContent ||
                    '';
 
+  // LinkedIn company name selectors
   const company = document.querySelector('.job-details-jobs-unified-top-card__company-name')?.textContent ||
+                  document.querySelector('.jobs-unified-top-card__company-name')?.textContent ||
+                  document.querySelector('.topcard__org-name-link')?.textContent ||
+                  document.querySelector('.topcard__flavor--black')?.textContent ||
                   document.querySelector('[class*="company-name"]')?.textContent ||
+                  document.querySelector('a[data-tracking-control-name*="company"]')?.textContent ||
                   '';
 
+  // LinkedIn job description selectors
   const description = document.querySelector('.jobs-description__content')?.textContent ||
+                     document.querySelector('.jobs-description-content__text')?.textContent ||
+                     document.querySelector('.description__text')?.textContent ||
                      document.querySelector('[class*="job-description"]')?.textContent ||
                      document.querySelector('.description')?.textContent ||
+                     document.querySelector('div[class*="jobs-description"]')?.textContent ||
                      '';
 
-  return { jobTitle, company, description, url: window.location.href };
+  // Additional data for LinkedIn
+  const location = document.querySelector('.job-details-jobs-unified-top-card__bullet')?.textContent ||
+                   document.querySelector('.topcard__flavor--bullet')?.textContent ||
+                   '';
+
+  return {
+    jobTitle,
+    company,
+    description,
+    location,
+    url: window.location.href,
+    source: 'LinkedIn'
+  };
 }
 
 // Extract job data from Indeed
 function extractIndeedJob() {
+  // Indeed job title selectors (updated for 2026)
   const jobTitle = document.querySelector('[class*="jobsearch-JobInfoHeader-title"]')?.textContent ||
+                   document.querySelector('.jobsearch-JobInfoHeader-title')?.textContent ||
+                   document.querySelector('h1[class*="title"]')?.textContent ||
+                   document.querySelector('.icl-u-xs-mb--xs')?.textContent ||
                    document.querySelector('h1')?.textContent ||
                    '';
 
+  // Indeed company name selectors
   const company = document.querySelector('[data-company-name="true"]')?.textContent ||
+                  document.querySelector('[class*="jobsearch-InlineCompanyRating"]')?.textContent?.split('-')[0] ||
+                  document.querySelector('[class*="jobsearch-CompanyInfoWithoutHeaderImage"]')?.textContent ||
                   document.querySelector('[class*="company"]')?.textContent ||
+                  document.querySelector('a[data-tn-element="companyName"]')?.textContent ||
                   '';
 
+  // Indeed job description selectors
   const description = document.querySelector('#jobDescriptionText')?.textContent ||
+                     document.querySelector('.jobsearch-jobDescriptionText')?.textContent ||
                      document.querySelector('[class*="job-description"]')?.textContent ||
+                     document.querySelector('.jobsearch-JobComponent-description')?.textContent ||
                      '';
 
-  return { jobTitle, company, description, url: window.location.href };
+  // Additional data for Indeed
+  const location = document.querySelector('[class*="jobsearch-JobInfoHeader-subtitle"] div')?.textContent ||
+                   document.querySelector('.jobsearch-DesktopStickyContainer-subtitle')?.textContent ||
+                   '';
+
+  return {
+    jobTitle,
+    company,
+    description,
+    location,
+    url: window.location.href,
+    source: 'Indeed'
+  };
 }
 
 // Extract job data from Glassdoor
 function extractGlassdoorJob() {
+  // Glassdoor job title selectors (updated for 2026)
   const jobTitle = document.querySelector('[data-test="job-title"]')?.textContent ||
+                   document.querySelector('.JobDetails_jobTitle')?.textContent ||
+                   document.querySelector('div[class*="JobTitle"]')?.textContent ||
                    document.querySelector('h1')?.textContent ||
                    '';
 
+  // Glassdoor company name selectors
   const company = document.querySelector('[data-test="employer-name"]')?.textContent ||
+                  document.querySelector('.EmployerProfile_employerName')?.textContent ||
+                  document.querySelector('div[class*="EmployerName"]')?.textContent ||
                   document.querySelector('[class*="employer"]')?.textContent ||
                   '';
 
+  // Glassdoor job description selectors
   const description = document.querySelector('[class*="JobDetails_jobDescription"]')?.textContent ||
+                     document.querySelector('.JobDetails_jobDescription')?.textContent ||
+                     document.querySelector('div[class*="description"]')?.textContent ||
                      document.querySelector('.desc')?.textContent ||
+                     document.querySelector('[data-test="description"]')?.textContent ||
                      '';
 
-  return { jobTitle, company, description, url: window.location.href };
+  // Additional data for Glassdoor
+  const location = document.querySelector('[data-test="location"]')?.textContent ||
+                   document.querySelector('.JobDetails_location')?.textContent ||
+                   '';
+
+  return {
+    jobTitle,
+    company,
+    description,
+    location,
+    url: window.location.href,
+    source: 'Glassdoor'
+  };
 }
 
 // Generic job data extraction for other websites
@@ -111,24 +181,39 @@ function extractGenericJob() {
                    document.querySelector('[class*="job-title" i]')?.textContent ||
                    document.querySelector('[class*="position" i]')?.textContent ||
                    document.querySelector('[class*="role" i]')?.textContent ||
+                   document.querySelector('[id*="job-title" i]')?.textContent ||
                    document.title ||
                    '';
 
   // Try to find company name
   const company = document.querySelector('[class*="company" i]')?.textContent ||
                   document.querySelector('[class*="employer" i]')?.textContent ||
+                  document.querySelector('[class*="organization" i]')?.textContent ||
                   '';
 
   // Try to find job description
   // Look for common class names and large text blocks
   const description = document.querySelector('[class*="description" i]')?.textContent ||
                      document.querySelector('[class*="job-detail" i]')?.textContent ||
+                     document.querySelector('[id*="description" i]')?.textContent ||
                      document.querySelector('[class*="content" i]')?.textContent ||
                      document.querySelector('main')?.textContent ||
                      document.querySelector('article')?.textContent ||
                      getMainContent();
 
-  return { jobTitle, company, description, url: window.location.href };
+  // Try to find location
+  const location = document.querySelector('[class*="location" i]')?.textContent ||
+                   document.querySelector('[class*="place" i]')?.textContent ||
+                   '';
+
+  return {
+    jobTitle,
+    company,
+    description,
+    location,
+    url: window.location.href,
+    source: 'Generic'
+  };
 }
 
 // Get main content of the page as fallback
