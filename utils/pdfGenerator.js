@@ -1,127 +1,120 @@
 // PDF Generator utility for TailorAI
-// Creates formatted PDF cover letters using jsPDF
+// Uses jsPDF to generate professional cover letter PDFs
 
 /**
- * Generate PDF from cover letter content
- * This will be fully implemented in Stage 5 when jsPDF is added
+ * Generate and download a PDF cover letter
  */
-async function generateCoverLetterPDF(letterContent, metadata, jobTitle) {
-  console.log('generateCoverLetterPDF called - will be implemented in Stage 5');
+function generateCoverLetterPDF(coverLetter, jobData, cvMetadata) {
+  const { jsPDF } = window.jspdf;
 
-  // TODO: Install jsPDF library
-  // TODO: Format letter content
-  // TODO: Add professional styling
-  // TODO: Generate PDF blob
-  // TODO: Return PDF for download
+  // Create new PDF document (A4 size)
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
 
-  return {
-    success: false,
-    message: 'PDF generation will be implemented in Stage 5'
-  };
-}
+  // Page dimensions
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 25;
+  const contentWidth = pageWidth - (margin * 2);
 
-/**
- * Format filename for PDF download
- * Format: [FirstName]-[LastName]-[JobTitle]-CoverLetter.pdf
- */
-function formatPDFFilename(firstName, lastName, jobTitle) {
-  // Clean and format names
-  const cleanFirstName = cleanForFilename(firstName);
-  const cleanLastName = cleanForFilename(lastName);
-  const cleanJobTitle = cleanForFilename(jobTitle);
+  // Colors
+  const primaryColor = [102, 126, 234]; // #667eea
+  const textColor = [51, 51, 51]; // #333333
+  const lightGray = [136, 136, 136]; // #888888
 
-  // Build filename
-  const filename = `${cleanFirstName}-${cleanLastName}-${cleanJobTitle}-CoverLetter.pdf`;
+  let yPosition = margin;
+
+  // Add header with applicant name
+  const applicantName = cvMetadata?.firstName && cvMetadata?.lastName
+    ? `${cvMetadata.firstName} ${cvMetadata.lastName}`
+    : 'Cover Letter';
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(24);
+  doc.setTextColor(...primaryColor);
+  doc.text(applicantName, margin, yPosition);
+  yPosition += 12;
+
+  // Add date
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(...lightGray);
+  doc.text(dateStr, margin, yPosition);
+  yPosition += 15;
+
+  // Add job info
+  if (jobData?.jobTitle || jobData?.company) {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(11);
+    doc.setTextColor(...lightGray);
+
+    let jobInfo = 'Application for: ';
+    if (jobData.jobTitle) jobInfo += jobData.jobTitle;
+    if (jobData.company) jobInfo += ` at ${jobData.company}`;
+
+    doc.text(jobInfo, margin, yPosition);
+    yPosition += 10;
+  }
+
+  // Add separator line
+  doc.setDrawColor(...primaryColor);
+  doc.setLineWidth(0.5);
+  doc.line(margin, yPosition, pageWidth - margin, yPosition);
+  yPosition += 15;
+
+  // Add cover letter content
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.setTextColor(...textColor);
+
+  // Split text into lines that fit the page width
+  const lines = doc.splitTextToSize(coverLetter, contentWidth);
+
+  // Calculate line height
+  const lineHeight = 6;
+
+  // Add lines with page breaks if needed
+  for (let i = 0; i < lines.length; i++) {
+    // Check if we need a new page
+    if (yPosition > pageHeight - margin - 20) {
+      doc.addPage();
+      yPosition = margin;
+    }
+
+    doc.text(lines[i], margin, yPosition);
+    yPosition += lineHeight;
+  }
+
+  // Add signature space
+  yPosition += 10;
+  if (yPosition > pageHeight - margin - 30) {
+    doc.addPage();
+    yPosition = margin;
+  }
+
+  // Add signature name
+  if (cvMetadata?.firstName && cvMetadata?.lastName) {
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${cvMetadata.firstName} ${cvMetadata.lastName}`, margin, yPosition);
+  }
+
+  // Generate filename
+  const companyName = jobData?.company?.replace(/[^a-zA-Z0-9]/g, '_') || 'Company';
+  const jobTitle = jobData?.jobTitle?.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30) || 'Position';
+  const filename = `Cover_Letter_${companyName}_${jobTitle}.pdf`;
+
+  // Download the PDF
+  doc.save(filename);
 
   return filename;
-}
-
-/**
- * Clean text for use in filename
- */
-function cleanForFilename(text) {
-  if (!text) return 'Unknown';
-
-  return text
-    .trim()
-    .replace(/[^a-zA-Z0-9\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single
-    .substring(0, 50); // Limit length
-}
-
-/**
- * Create PDF document with professional formatting
- * This is a placeholder for Stage 5 implementation
- */
-function createFormattedPDF(letterContent, userInfo) {
-  // This will use jsPDF in Stage 5
-  console.log('PDF formatting will be implemented in Stage 5');
-
-  // Structure:
-  // 1. Header with user's contact info
-  // 2. Date
-  // 3. Recipient address (if available)
-  // 4. Letter body
-  // 5. Signature section
-
-  return null;
-}
-
-/**
- * Download PDF file
- */
-async function downloadPDF(pdfBlob, filename) {
-  try {
-    // Convert blob to data URL for Chrome downloads API
-    const url = URL.createObjectURL(pdfBlob);
-
-    // Use Chrome downloads API
-    await chrome.downloads.download({
-      url: url,
-      filename: filename,
-      saveAs: false // Auto-download without prompt
-    });
-
-    console.log('PDF download initiated:', filename);
-
-    // Clean up the object URL after a delay
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-    return { success: true, filename: filename };
-  } catch (error) {
-    console.error('Error downloading PDF:', error);
-    throw error;
-  }
-}
-
-/**
- * Extract contact information from CV text
- * Used for PDF header
- */
-function extractContactInfo(cvText) {
-  // This is a simple extraction - can be improved
-  const lines = cvText.split('\n').filter(line => line.trim());
-
-  const contactInfo = {
-    name: '',
-    email: '',
-    phone: '',
-    address: ''
-  };
-
-  // Look for email
-  const emailMatch = cvText.match(/[\w.-]+@[\w.-]+\.\w+/);
-  if (emailMatch) contactInfo.email = emailMatch[0];
-
-  // Look for phone
-  const phoneMatch = cvText.match(/(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
-  if (phoneMatch) contactInfo.phone = phoneMatch[0];
-
-  // Name is usually in first few lines
-  if (lines.length > 0) {
-    contactInfo.name = lines[0].trim();
-  }
-
-  return contactInfo;
 }

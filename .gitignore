@@ -47,3 +47,7 @@ Desktop.ini
 *.pdf
 cvs/
 user_data/
+
+# Test/debug files
+handshake.HTML
+test-gemini.html

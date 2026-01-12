@@ -52,12 +52,12 @@
         </div>
 
         <div class="setting-group">
-          <label for="apiKey">OpenAI API Key</label>
-          <input type="password" id="apiKey" placeholder="sk-..." />
+          <label for="apiKey">Gemini API Key</label>
+          <input type="password" id="apiKey" placeholder="AIza..." />
           <button id="saveApiKeyBtn" class="secondary-btn">Save API Key</button>
           <p class="help-text">
-            Get your API key from
-            <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a>
+            Get your free API key from
+            <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a>
           </p>
         </div>
       </div>
@@ -70,9 +70,12 @@
 
   <!-- External libraries -->
   <script src="../libs/mammoth.browser.min.js"></script>
+  <script src="../libs/jspdf.umd.min.js"></script>
 
   <!-- Utility scripts -->
   <script src="../utils/cvExtractor.js"></script>
+  <script src="../utils/openai.js"></script>
+  <script src="../utils/pdfGenerator.js"></script>
 
   <!-- Main popup script -->
   <script src="popup.js"></script>

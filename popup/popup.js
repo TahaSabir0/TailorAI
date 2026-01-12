@@ -193,9 +193,9 @@ async function handleSaveApiKey() {
     return;
   }
 
-  // Basic validation for OpenAI API key format
-  if (!apiKey.startsWith('sk-')) {
-    showMessage('Invalid API key format. OpenAI keys start with "sk-"', 'error');
+  // Basic validation for Gemini API key format
+  if (!apiKey.startsWith('AIza')) {
+    showMessage('Invalid API key format. Gemini keys start with "AIza"', 'error');
     return;
   }
 
@@ -214,7 +214,7 @@ async function handleTailorClick() {
   const result = await chrome.storage.local.get(['openaiApiKey', 'cvText']);
 
   if (!result.openaiApiKey) {
-    showMessage('Please add your OpenAI API key in settings', 'error');
+    showMessage('Please add your Gemini API key in settings', 'error');
     openSettings();
     return;
   }
@@ -241,20 +241,37 @@ async function handleTailorClick() {
 
     console.log('Job data extracted:', jobData);
 
+    // Check for unsupported sites
+    if (jobData.source === 'Unsupported') {
+      showMessage(jobData.error || 'This site is not supported. Please use Handshake.', 'error');
+      setLoadingState(false);
+      return;
+    }
+
     // Store job data for later use
     await chrome.storage.local.set({ currentJobData: jobData });
 
     // Update status to show job was found
     updateStatusMessage('✅', `Found: ${jobData.jobTitle} at ${jobData.company || 'Unknown Company'}`, 'success');
-    showMessage(`Job posting extracted: ${jobData.jobTitle}`, 'success');
+    showMessage('Generating cover letter...', 'info');
 
-    // Show that cover letter generation will be implemented in Stage 4-5
-    setTimeout(() => {
-      showMessage('Cover letter generation will be implemented in Stage 4-5', 'info');
-    }, 2000);
+    // Stage 4: Call OpenAI API to generate cover letter
+    const coverLetter = await generateCoverLetter(result.cvText, jobData, result.openaiApiKey);
 
-    // TODO: Call OpenAI API (Stage 4)
-    // TODO: Generate PDF (Stage 5)
+    console.log('Cover letter generated:', coverLetter);
+
+    // Store the generated cover letter
+    await chrome.storage.local.set({ currentCoverLetter: coverLetter });
+
+    // Get CV metadata for PDF
+    const cvData = await chrome.storage.local.get(['cvMetadata']);
+
+    // Generate and download PDF automatically
+    showMessage('Generating PDF...', 'info');
+    const filename = generateCoverLetterPDF(coverLetter, jobData, cvData.cvMetadata);
+
+    // Display the cover letter result
+    displayCoverLetterResult(coverLetter, jobData, filename);
   } catch (error) {
     console.error('Error generating cover letter:', error);
     showMessage('Error: ' + error.message, 'error');
@@ -320,4 +337,56 @@ function showMessage(text, type) {
       messageSection.style.display = 'none';
     }, 3000);
   }
+}
+
+// Display cover letter result
+function displayCoverLetterResult(coverLetter, jobData, filename) {
+  // Create or get the result section
+  let resultSection = document.getElementById('resultSection');
+  if (!resultSection) {
+    resultSection = document.createElement('div');
+    resultSection.id = 'resultSection';
+    resultSection.className = 'result-section';
+    document.querySelector('.container').appendChild(resultSection);
+  }
+
+  resultSection.innerHTML = `
+    <div class="result-header">
+      <h3>Cover Letter Generated</h3>
+      <p class="job-info">For: ${jobData.jobTitle} at ${jobData.company || 'Unknown Company'}</p>
+      <p class="pdf-info">PDF downloaded: ${filename || 'cover_letter.pdf'}</p>
+    </div>
+    <div class="cover-letter-content" id="coverLetterContent">${coverLetter.replace(/\n/g, '<br>')}</div>
+    <div class="result-actions">
+      <button id="copyBtn" class="secondary-btn">Copy to Clipboard</button>
+      <button id="downloadPdfBtn" class="primary-btn">Download PDF Again</button>
+    </div>
+  `;
+
+  resultSection.style.display = 'block';
+
+  // Setup copy button
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(coverLetter);
+      showMessage('Cover letter copied to clipboard!', 'success');
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      showMessage('Failed to copy to clipboard', 'error');
+    }
+  });
+
+  // Setup download PDF button for re-download
+  document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
+    try {
+      const cvData = await chrome.storage.local.get(['cvMetadata']);
+      generateCoverLetterPDF(coverLetter, jobData, cvData.cvMetadata);
+      showMessage('PDF downloaded!', 'success');
+    } catch (err) {
+      console.error('Failed to download PDF:', err);
+      showMessage('Failed to download PDF', 'error');
+    }
+  });
+
+  showMessage('Cover letter generated and PDF downloaded!', 'success');
 }

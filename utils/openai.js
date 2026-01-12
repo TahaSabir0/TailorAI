@@ -1,12 +1,11 @@
-// OpenAI API integration utility for TailorAI
-// Handles API calls to OpenAI for cover letter generation
+// AI API integration utility for TailorAI
+// Supports Google Gemini API for cover letter generation
 
 /**
- * Generate cover letter using OpenAI API
- * This will be fully implemented in Stage 4
+ * Generate cover letter using Gemini API
  */
 async function generateCoverLetter(cvText, jobData, apiKey) {
-  console.log('generateCoverLetter will be implemented in Stage 4');
+  console.log('Generating cover letter with Gemini...');
 
   // Validate inputs
   if (!cvText) throw new Error('CV text is required');
@@ -16,22 +15,21 @@ async function generateCoverLetter(cvText, jobData, apiKey) {
   // Build the prompt
   const prompt = buildCoverLetterPrompt(cvText, jobData);
 
-  // Call OpenAI API
+  // Call Gemini API
   try {
-    const response = await callOpenAIAPI(prompt, apiKey);
+    const response = await callGeminiAPI(prompt, apiKey);
     return response;
   } catch (error) {
-    console.error('Error calling OpenAI API:', error);
+    console.error('Error calling Gemini API:', error);
     throw error;
   }
 }
 
 /**
- * Build prompt for OpenAI
+ * Build prompt for cover letter generation
  */
 function buildCoverLetterPrompt(cvText, jobData) {
-  const prompt = `
-You are a professional cover letter writer. Write a compelling, personalized cover letter based on the candidate's CV and the job posting provided below.
+  const prompt = `You are a professional cover letter writer. Write a compelling, personalized cover letter based on the candidate's CV and the job posting provided below.
 
 CANDIDATE'S CV:
 ${cvText}
@@ -39,6 +37,7 @@ ${cvText}
 JOB POSTING:
 Title: ${jobData.jobTitle}
 ${jobData.company ? `Company: ${jobData.company}` : ''}
+${jobData.location ? `Location: ${jobData.location}` : ''}
 Description:
 ${jobData.description}
 
@@ -57,74 +56,65 @@ INSTRUCTIONS:
 9. Focus on specific achievements and how they relate to the job requirements
 10. Avoid generic statements - make it specific to this role and company
 
-Please write the cover letter now:
-`;
+Please write the cover letter now:`;
 
   return prompt;
 }
 
 /**
- * Call OpenAI Chat Completions API
+ * Call Google Gemini API
  */
-async function callOpenAIAPI(prompt, apiKey, options = {}) {
-  const url = 'https://api.openai.com/v1/chat/completions';
-
-  const defaultOptions = {
-    model: 'gpt-4',
-    temperature: 0.7,
-    max_tokens: 1000
-  };
-
-  const settings = { ...defaultOptions, ...options };
+async function callGeminiAPI(prompt, apiKey) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
   const requestBody = {
-    model: settings.model,
-    messages: [
+    contents: [
       {
-        role: 'system',
-        content: 'You are a professional cover letter writer with expertise in tailoring applications to specific job postings. You write compelling, personalized cover letters that highlight relevant experience and show genuine enthusiasm.'
-      },
-      {
-        role: 'user',
-        content: prompt
+        parts: [
+          {
+            text: prompt
+          }
+        ]
       }
     ],
-    temperature: settings.temperature,
-    max_tokens: settings.max_tokens
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 1000
+    }
   };
 
   try {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error?.message || `API request failed with status ${response.status}`);
+      const errorMessage = errorData.error?.message || `API request failed with status ${response.status}`;
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
 
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      throw new Error('Invalid response from OpenAI API');
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      throw new Error('Invalid response from Gemini API');
     }
 
-    return data.choices[0].message.content;
+    return data.candidates[0].content.parts[0].text;
   } catch (error) {
-    console.error('OpenAI API error:', error);
+    console.error('Gemini API error:', error);
 
     // Provide more helpful error messages
-    if (error.message.includes('401')) {
-      throw new Error('Invalid API key. Please check your OpenAI API key in settings.');
-    } else if (error.message.includes('429')) {
+    if (error.message.includes('API_KEY_INVALID') || error.message.includes('API key not valid')) {
+      throw new Error('Invalid API key. Please check your Gemini API key in settings.');
+    } else if (error.message.includes('RATE_LIMIT') || error.message.includes('429')) {
       throw new Error('Rate limit exceeded. Please try again in a moment.');
-    } else if (error.message.includes('insufficient_quota')) {
-      throw new Error('Insufficient API quota. Please check your OpenAI account balance.');
+    } else if (error.message.includes('QUOTA') || error.message.includes('quota')) {
+      throw new Error('API quota exceeded. Please check your Google Cloud billing.');
     } else {
       throw error;
     }
@@ -136,12 +126,8 @@ async function callOpenAIAPI(prompt, apiKey, options = {}) {
  */
 async function testAPIKey(apiKey) {
   try {
-    const response = await fetch('https://api.openai.com/v1/models', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`
-      }
-    });
+    const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+    const response = await fetch(url);
 
     if (response.ok) {
       return { valid: true, message: 'API key is valid' };
@@ -156,52 +142,20 @@ async function testAPIKey(apiKey) {
 }
 
 /**
- * Validate API key format
+ * Validate API key format (Gemini keys start with AIza)
  */
 function validateAPIKeyFormat(apiKey) {
   if (!apiKey || typeof apiKey !== 'string') {
     return { valid: false, message: 'API key is required' };
   }
 
-  if (!apiKey.startsWith('sk-')) {
-    return { valid: false, message: 'OpenAI API keys should start with "sk-"' };
+  if (!apiKey.startsWith('AIza')) {
+    return { valid: false, message: 'Gemini API keys should start with "AIza"' };
   }
 
-  if (apiKey.length < 20) {
+  if (apiKey.length < 30) {
     return { valid: false, message: 'API key appears to be too short' };
   }
 
   return { valid: true };
-}
-
-/**
- * Estimate token count (rough approximation)
- */
-function estimateTokenCount(text) {
-  // Rough estimate: ~4 characters per token
-  return Math.ceil(text.length / 4);
-}
-
-/**
- * Check if CV and job description will fit in context
- */
-function checkTokenLimit(cvText, jobDescription) {
-  const cvTokens = estimateTokenCount(cvText);
-  const jobTokens = estimateTokenCount(jobDescription);
-  const promptTokens = 500; // Overhead for system message and instructions
-  const responseTokens = 1000; // Max tokens for response
-
-  const totalTokens = cvTokens + jobTokens + promptTokens + responseTokens;
-  const maxTokens = 8000; // Conservative limit for GPT-4
-
-  if (totalTokens > maxTokens) {
-    return {
-      withinLimit: false,
-      totalTokens,
-      maxTokens,
-      message: 'CV or job description is too long. Please use a shorter CV or try a different job posting.'
-    };
-  }
-
-  return { withinLimit: true, totalTokens, maxTokens };
 }
