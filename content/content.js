@@ -33,10 +33,8 @@ function extractJobData() {
   // Detect job board and use specific extractors
   if (url.includes('linkedin.com')) {
     jobData = extractLinkedInJob();
-  } else if (url.includes('indeed.com')) {
-    jobData = extractIndeedJob();
-  } else if (url.includes('glassdoor.com')) {
-    jobData = extractGlassdoorJob();
+  } else if (url.includes('handshake.com') || url.includes('joinhandshake.com')) {
+    jobData = extractHandshakeJob();
   } else {
     // Generic extraction for other sites
     jobData = extractGenericJob();
@@ -95,74 +93,48 @@ function extractLinkedInJob() {
   };
 }
 
-// Extract job data from Indeed
-function extractIndeedJob() {
-  // Indeed job title selectors (updated for 2026)
-  const jobTitle = document.querySelector('[class*="jobsearch-JobInfoHeader-title"]')?.textContent ||
-                   document.querySelector('.jobsearch-JobInfoHeader-title')?.textContent ||
-                   document.querySelector('h1[class*="title"]')?.textContent ||
-                   document.querySelector('.icl-u-xs-mb--xs')?.textContent ||
-                   document.querySelector('h1')?.textContent ||
-                   '';
+// Extract job data from Handshake
+function extractHandshakeJob() {
+  // 1. Get Job Title - Handshake uses the only <h1> for the job title
+  const jobTitle = document.querySelector('h1')?.innerText || '';
 
-  // Indeed company name selectors
-  const company = document.querySelector('[data-company-name="true"]')?.textContent ||
-                  document.querySelector('[class*="jobsearch-InlineCompanyRating"]')?.textContent?.split('-')[0] ||
-                  document.querySelector('[class*="jobsearch-CompanyInfoWithoutHeaderImage"]')?.textContent ||
-                  document.querySelector('[class*="company"]')?.textContent ||
-                  document.querySelector('a[data-tn-element="companyName"]')?.textContent ||
-                  '';
+  // 2. Get Company Name - Use aria-label from employer follow button
+  let company = '';
+  const employerLogo = document.querySelector('a[aria-label^="Follow this employer"]');
+  if (employerLogo) {
+    // The aria label says "Follow this employer: [Company Name]"
+    company = employerLogo.getAttribute('aria-label').replace('Follow this employer: ', '');
+  } else {
+    // Backup: Look for the text inside the header link
+    const headerLink = document.querySelector('a[data-size="xlarge"][href^="/e/"]');
+    if (headerLink) company = headerLink.innerText;
+  }
 
-  // Indeed job description selectors
-  const description = document.querySelector('#jobDescriptionText')?.textContent ||
-                     document.querySelector('.jobsearch-jobDescriptionText')?.textContent ||
-                     document.querySelector('[class*="job-description"]')?.textContent ||
-                     document.querySelector('.jobsearch-JobComponent-description')?.textContent ||
-                     '';
+  // 3. Get Job Description - Look for the break-word styled container
+  const descriptionContainer = document.querySelector('div[style*="overflow-wrap: break-word"]');
+  let description = '';
+  if (descriptionContainer) {
+    description = descriptionContainer.innerText;
+  } else {
+    // Fallback: Look for "About the Role" section
+    const allTextContainers = document.querySelectorAll('div');
+    for (const div of allTextContainers) {
+      if (div.innerText.includes('About the Role')) {
+        description = div.innerText;
+        break;
+      }
+    }
+  }
 
-  // Additional data for Indeed
-  const location = document.querySelector('[class*="jobsearch-JobInfoHeader-subtitle"] div')?.textContent ||
-                   document.querySelector('.jobsearch-DesktopStickyContainer-subtitle')?.textContent ||
-                   '';
-
-  return {
-    jobTitle,
-    company,
-    description,
-    location,
-    url: window.location.href,
-    source: 'Indeed'
-  };
-}
-
-// Extract job data from Glassdoor
-function extractGlassdoorJob() {
-  // Glassdoor job title selectors (updated for 2026)
-  const jobTitle = document.querySelector('[data-test="job-title"]')?.textContent ||
-                   document.querySelector('.JobDetails_jobTitle')?.textContent ||
-                   document.querySelector('div[class*="JobTitle"]')?.textContent ||
-                   document.querySelector('h1')?.textContent ||
-                   '';
-
-  // Glassdoor company name selectors
-  const company = document.querySelector('[data-test="employer-name"]')?.textContent ||
-                  document.querySelector('.EmployerProfile_employerName')?.textContent ||
-                  document.querySelector('div[class*="EmployerName"]')?.textContent ||
-                  document.querySelector('[class*="employer"]')?.textContent ||
-                  '';
-
-  // Glassdoor job description selectors
-  const description = document.querySelector('[class*="JobDetails_jobDescription"]')?.textContent ||
-                     document.querySelector('.JobDetails_jobDescription')?.textContent ||
-                     document.querySelector('div[class*="description"]')?.textContent ||
-                     document.querySelector('.desc')?.textContent ||
-                     document.querySelector('[data-test="description"]')?.textContent ||
-                     '';
-
-  // Additional data for Glassdoor
-  const location = document.querySelector('[data-test="location"]')?.textContent ||
-                   document.querySelector('.JobDetails_location')?.textContent ||
-                   '';
+  // 4. Get Metadata (Location/Salary) from "At a glance" section
+  let location = '';
+  const glanceHeaders = Array.from(document.querySelectorAll('h3')).find(
+    (h) => h.innerText === 'At a glance'
+  );
+  if (glanceHeaders) {
+    const container = glanceHeaders.parentElement.parentElement;
+    location = container.innerText.replace('At a glance', '').trim();
+  }
 
   return {
     jobTitle,
@@ -170,7 +142,7 @@ function extractGlassdoorJob() {
     description,
     location,
     url: window.location.href,
-    source: 'Glassdoor'
+    source: 'Handshake'
   };
 }
 
