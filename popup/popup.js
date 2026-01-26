@@ -148,6 +148,13 @@ async function handleCVUpload(event) {
 
     console.log('CV uploaded successfully:', metadata);
 
+    // Populate LaTeX template with CV metadata
+    showMessage('Preparing cover letter template...', 'info');
+    const partialTemplate = await populateCVMetadata(metadata);
+    await storePartialTemplate(partialTemplate);
+
+    console.log('LaTeX template populated and stored');
+
     // Update UI
     updateCVStatusDisplay(metadata);
     enableTailorButton();
@@ -163,6 +170,7 @@ async function handleCVUpload(event) {
   }
 }
 
+
 // Handle delete CV
 async function handleDeleteCV() {
   if (!confirm('Are you sure you want to delete your CV? This cannot be undone.')) {
@@ -170,7 +178,7 @@ async function handleDeleteCV() {
   }
 
   try {
-    await chrome.storage.local.remove(['cvText', 'cvMetadata']);
+    await chrome.storage.local.remove(['cvText', 'cvMetadata', 'latexTemplate']);
     cvStatus.innerHTML = '<p class="no-cv-text">No CV uploaded yet</p>';
     deleteCvBtn.style.display = 'none';
     disableTailorButton();
