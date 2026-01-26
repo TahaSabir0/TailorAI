@@ -5,8 +5,8 @@ A Chrome extension that generates personalized cover letters from job postings w
 ## Features
 
 - **One-Click Generation**: Generate tailored cover letters instantly while viewing job postings
-- **AI-Powered**: Uses OpenAI's GPT to create professional, personalized content
-- **Smart Extraction**: Automatically extracts job details from popular job boards (LinkedIn, Indeed, Glassdoor, etc.)
+- **AI-Powered**: Uses Google Gemini to create professional, personalized content
+- **Smart Extraction**: Automatically extracts job details from Handshake
 - **PDF Export**: Downloads formatted cover letters as PDF with smart naming
 - **Privacy-First**: All data stored locally in your browser
 - **Easy Setup**: Simple CV upload and API key configuration
@@ -33,7 +33,7 @@ A Chrome extension that generates personalized cover letters from job postings w
 ### Prerequisites
 
 - Google Chrome browser
-- OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+- Google Gemini API key ([Get one here](https://aistudio.google.com/apikey))
 
 ### Setup Steps
 
@@ -55,8 +55,8 @@ A Chrome extension that generates personalized cover letters from job postings w
 4. **Configure the Extension**:
    - Click the TailorAI icon in your Chrome toolbar
    - Click the settings (gear) icon
-   - Add your OpenAI API key
-   - Upload your CV (PDF or DOCX) - *Coming in Stage 2*
+   - Add your Gemini API key
+   - Upload your CV (PDF or DOCX)
 
 ## Usage
 
@@ -65,12 +65,12 @@ A Chrome extension that generates personalized cover letters from job postings w
 1. Click the TailorAI extension icon
 2. Open settings (gear icon)
 3. Upload your CV (PDF or DOCX format)
-4. Add your OpenAI API key
+4. Add your Gemini API key
 5. Click "Save"
 
 ### Generating a Cover Letter
 
-1. Navigate to any job posting page (LinkedIn, Indeed, company careers page, etc.)
+1. Navigate to a Handshake job posting page
 2. Click the TailorAI extension icon
 3. Click the "Tailor" button
 4. Wait for the AI to generate your cover letter
@@ -99,10 +99,9 @@ TailorAI/
 ├── content/
 │   └── content.js               # Content script (extracts job data from pages)
 ├── utils/
-│   ├── storage.js               # Chrome storage wrapper functions
 │   ├── pdfGenerator.js          # PDF creation and formatting
 │   ├── cvExtractor.js           # CV text extraction (PDF/DOCX)
-│   └── openai.js                # OpenAI API integration
+│   └── gemini.js                # Google Gemini API integration
 ├── assets/
 │   └── icons/                   # Extension icons (16x16, 48x48, 128x128)
 └── README.md                    # This file
@@ -159,11 +158,11 @@ This project is being built incrementally in stages:
 ### Technologies Used
 
 - **Chrome Extension API** (Manifest V3)
-- **OpenAI API** (GPT-4 for letter generation)
+- **Google Gemini API** (gemini-2.0-flash for letter generation)
 - **Chrome Storage API** (Local storage)
-- **jsPDF** (PDF generation) - Coming in Stage 5
-- **pdf.js / pdf-parse** (PDF text extraction) - Coming in Stage 2
-- **mammoth.js** (DOCX text extraction) - Coming in Stage 2
+- **jsPDF** (PDF generation)
+- **pdf.js** (PDF text extraction)
+- **mammoth.js** (DOCX text extraction)
 - **Vanilla JavaScript** (No framework dependencies)
 
 ### Permissions Required
@@ -187,7 +186,7 @@ All data is stored locally using Chrome's storage API:
     firstName: "John",
     lastName: "Doe"
   },
-  openaiApiKey: "sk-...",
+  openaiApiKey: "AIza...",
   settings: {
     letterTone: "professional",
     includeSignature: true
@@ -197,32 +196,29 @@ All data is stored locally using Chrome's storage API:
 
 ### Privacy & Security
 
-- **No External Servers**: All processing happens locally or via OpenAI API only
+- **No External Servers**: All processing happens locally or via Gemini API only
 - **No Data Sharing**: Your CV and cover letters are never shared with third parties
 - **Local Storage**: All data stored in your browser's local storage
-- **Secure API**: OpenAI API key stored locally and never exposed
+- **Secure API**: Gemini API key stored locally and never exposed
 - **HTTPS Only**: All API calls use secure HTTPS connections
 
-## Getting an OpenAI API Key
+## Getting a Gemini API Key
 
-1. Go to [OpenAI Platform](https://platform.openai.com/)
-2. Sign up or log in to your account
-3. Navigate to [API Keys](https://platform.openai.com/api-keys)
-4. Click "Create new secret key"
-5. Copy the key (it starts with `sk-`)
-6. Paste it into TailorAI settings
+1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Copy the key (it starts with `AIza`)
+5. Paste it into TailorAI settings
 
-**Note**: OpenAI API usage is paid. Check [OpenAI Pricing](https://openai.com/pricing) for current rates. Generating a cover letter typically costs $0.01-0.05 depending on the model and length.
+**Note**: Gemini API has a generous free tier. Check [Google AI Pricing](https://ai.google.dev/pricing) for current rates and limits.
 
 ## Supported Job Boards
 
-TailorAI works on most job posting websites, with optimized extraction for:
+TailorAI currently supports:
 
-- LinkedIn Jobs
-- Indeed
-- Glassdoor
-- Company career pages
-- Generic job posting sites
+- **Handshake** (fully supported)
+
+More job boards coming soon!
 
 ## Troubleshooting
 
@@ -235,15 +231,15 @@ TailorAI works on most job posting websites, with optimized extraction for:
 - Follow instructions in `assets/icons/ICONS_README.txt` to generate icons
 - Or use the `generate_icons.html` tool
 
-### Can't upload CV (Stage 2+)
+### Can't upload CV
 - Ensure file is PDF or DOCX format
 - Check file size is under 10MB
 - Try a different file
 
-### Cover letter not generating (Stage 4+)
-- Verify OpenAI API key is correct
-- Check your OpenAI account has available credits
-- Ensure you're on a valid job posting page
+### Cover letter not generating
+- Verify Gemini API key is correct (starts with "AIza")
+- Check you haven't exceeded your API quota
+- Ensure you're on a Handshake job posting page
 
 ### PDF not downloading (Stage 5+)
 - Check Chrome's download settings

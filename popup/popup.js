@@ -117,6 +117,15 @@ async function handleCVUpload(event) {
   showMessage('Processing CV...', 'info');
 
   try {
+    // Get API key first - needed for structured extraction
+    const storage = await chrome.storage.local.get(['openaiApiKey']);
+    if (!storage.openaiApiKey) {
+      showMessage('Please add your Gemini API key in settings first', 'error');
+      openSettings();
+      cvUploadInput.value = '';
+      return;
+    }
+
     // Extract text from PDF/DOCX using cvExtractor utility
     const cvText = await extractTextFromCV(file);
 
@@ -127,12 +136,13 @@ async function handleCVUpload(event) {
       return;
     }
 
-    // Create metadata
-    const metadata = createCVMetadata(file.name, cvText);
+    // Extract structured metadata using Gemini API
+    showMessage('Extracting contact information...', 'info');
+    const metadata = await createCVMetadata(file.name, cvText, storage.openaiApiKey);
 
     // Store CV text and metadata in chrome.storage.local
     await chrome.storage.local.set({
-      cvText: cvText,
+      cvText: metadata.fullText,
       cvMetadata: metadata
     });
 
