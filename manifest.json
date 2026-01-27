@@ -46,7 +46,7 @@
     {
       "resources": [
         "libs/*",
-        "cover_letter_template.tex"
+        "cover_letter_template.html"
       ],
       "matches": [
         "<all_urls>"

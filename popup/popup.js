@@ -148,12 +148,12 @@ async function handleCVUpload(event) {
 
     console.log('CV uploaded successfully:', metadata);
 
-    // Populate LaTeX template with CV metadata
+    // Populate HTML template with CV metadata
     showMessage('Preparing cover letter template...', 'info');
-    const partialTemplate = await populateCVMetadata(metadata);
-    await storePartialTemplate(partialTemplate);
+    const partialTemplate = await populateCVMetadataHtml(metadata);
+    await storePartialHtmlTemplate(partialTemplate);
 
-    console.log('LaTeX template populated and stored');
+    console.log('HTML template populated and stored');
 
     // Update UI
     updateCVStatusDisplay(metadata);
@@ -178,7 +178,7 @@ async function handleDeleteCV() {
   }
 
   try {
-    await chrome.storage.local.remove(['cvText', 'cvMetadata', 'latexTemplate']);
+    await chrome.storage.local.remove(['cvText', 'cvMetadata', 'htmlTemplate']);
     cvStatus.innerHTML = '<p class="no-cv-text">No CV uploaded yet</p>';
     deleteCvBtn.style.display = 'none';
     disableTailorButton();
@@ -286,7 +286,7 @@ async function handleTailorClick() {
 
     // Generate and download PDF automatically
     showMessage('Generating PDF...', 'info');
-    const filename = generateCoverLetterPDF(coverLetter, jobData, cvData.cvMetadata);
+    const filename = await generateCoverLetterPDF(coverLetter, jobData, cvData.cvMetadata);
 
     // Display the cover letter result
     displayCoverLetterResult(coverLetter, jobData, filename);
@@ -398,7 +398,7 @@ function displayCoverLetterResult(coverLetter, jobData, filename) {
   document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
     try {
       const cvData = await chrome.storage.local.get(['cvMetadata']);
-      generateCoverLetterPDF(coverLetter, jobData, cvData.cvMetadata);
+      await generateCoverLetterPDF(coverLetter, jobData, cvData.cvMetadata);
       showMessage('PDF downloaded!', 'success');
     } catch (err) {
       console.error('Failed to download PDF:', err);
