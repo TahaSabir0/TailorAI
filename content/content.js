@@ -62,12 +62,12 @@ function extractHandshakeJob() {
 
   // 2. Get Company Name - Use aria-label from employer follow button
   let company = "";
-  const employerLogo = document.querySelector(
-    'a[aria-label^="Follow this employer"]'
+  const employerButton = document.querySelector(
+    'button[aria-label^="Follow this employer"]'
   );
-  if (employerLogo) {
+  if (employerButton) {
     // The aria label says "Follow this employer: [Company Name]"
-    company = employerLogo
+    company = employerButton
       .getAttribute("aria-label")
       .replace("Follow this employer: ", "");
   } else {
@@ -96,14 +96,47 @@ function extractHandshakeJob() {
     }
   }
 
-  // 4. Get Metadata (Location/Salary) from "At a glance" section
+  // 4. Get Location from "At a glance" section
   let location = "";
   const glanceHeaders = Array.from(document.querySelectorAll("h3")).find(
     (h) => h.innerText === "At a glance"
   );
   if (glanceHeaders) {
     const container = glanceHeaders.parentElement.parentElement;
-    location = container.innerText.replace("At a glance", "").trim();
+    // Get all text content and split by lines
+    const allLines = container.innerText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    // Filter to find location-specific lines
+    const locationLines = allLines.filter((line) => {
+      const lowerLine = line.toLowerCase();
+      // Include lines that look like locations
+      const hasLocationKeywords =
+        lowerLine.includes("remote") ||
+        lowerLine.includes("work from home") ||
+        /[A-Z][a-z]+,\s*[A-Z]{2}/.test(line) || // City, ST format
+        lowerLine.includes("based in") ||
+        lowerLine.includes("hybrid");
+
+      // Exclude non-location lines
+      const isNotLocation =
+        line.includes("$") || // Salary
+        /\d{1,2}\/\d{1,2}\/\d{4}/.test(line) || // Dates
+        lowerLine.includes("work authorization") ||
+        lowerLine.includes("opt") ||
+        lowerLine.includes("cpt") ||
+        lowerLine === "at a glance" ||
+        lowerLine === "internship" ||
+        lowerLine === "full-time" ||
+        lowerLine === "part-time" ||
+        /from .+ to .+\d{4}/.test(lowerLine); // Duration format
+
+      return hasLocationKeywords && !isNotLocation;
+    });
+
+    location = locationLines.join(" • ");
   }
 
   return {
