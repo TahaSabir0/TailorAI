@@ -27,7 +27,7 @@ async function generateCoverLetter(cvText, jobData, apiKey) {
  * Build prompt for cover letter generation
  */
 function buildCoverLetterPrompt(cvText, jobData) {
-  const prompt = `You are a professional cover letter writer. Write a compelling, personalized cover letter based on the candidate's CV and the job posting provided below.
+  const prompt = `You are writing a cover letter that matches a specific, grounded style. Write based on the candidate's CV and job posting below.
 
 CANDIDATE'S CV:
 ${cvText}
@@ -39,22 +39,54 @@ ${jobData.location ? `Location: ${jobData.location}` : ''}
 Description:
 ${jobData.description}
 
-INSTRUCTIONS:
-1. Write a professional cover letter tailored specifically to this job posting
-2. Highlight the most relevant experience and skills from the CV that match the job requirements
-3. Show genuine enthusiasm for the role and company
-4. Use a professional yet warm and personable tone
-5. Keep it concise - aim for 3-4 paragraphs (about 250-350 words)
-6. Do NOT include:
-   - Your contact information (will be added separately)
-   - The date (will be added separately)
-   - The company's address (will be added separately)
-7. Start with "Dear Hiring Manager," (or use the hiring manager's name if mentioned in the job posting)
-8. End with "Sincerely," (signature will be added separately)
-9. Focus on specific achievements and how they relate to the job requirements
-10. Avoid generic statements - make it specific to this role and company
+STYLE REQUIREMENTS:
 
-Please write the cover letter now:`;
+TONE & VOICE:
+- Professional, confident, and grounded. Never salesy or hype-driven.
+- Semi-formal tone appropriate for tech/research roles.
+- First-person active voice. Speak as someone already doing the work.
+- Short to medium sentences. One clear idea per sentence. Direct and assertive.
+
+OPENING PARAGRAPH:
+- DO NOT start with "I am writing to apply for..."
+- Lead with action, context, or alignment—not credentials.
+- Connect to the problem the company is solving or the work the role enables.
+- Example pattern: "I've been building X and this role lines up with that work."
+
+BODY PARAGRAPHS (2-3 paragraphs):
+- Each paragraph = one concrete experience.
+- Structure: Action → Tool → Outcome → Insight.
+- Use specific metrics when available (time saved, performance gains, accuracy improvements, adoption numbers).
+- Technical skills lead. Soft skills appear through action (teaching, training, collaborating, leading) — never explicitly stated.
+- Make relevance to the job implicit through the example itself. Don't spell it out line-by-line.
+
+COMPANY/ROLE CONNECTION:
+- Reference 1-2 meaningful details: product, mission, user group, or problem they solve.
+- Weave this naturally into your experience. Don't sound like you copied their About page.
+
+CLOSING PARAGRAPH:
+- Forward-looking. Focused on contribution, not opportunity.
+- One sentence on what you'd like to help build/improve.
+- One sentence expressing interest in continuing the conversation (soft call to action).
+- Example: "I'd love to talk more about..." rather than "I look forward to hearing from you."
+
+STRICTLY AVOID THESE CLICHÉS:
+- "passionate about," "excited," "thrilled," "delighted"
+- "fast-paced environment," "cutting-edge," "world-class"
+- "delve," "foster," "testament," "realm"
+- Empty enthusiasm or generic statements that could apply to any role
+- Overly corporate or HR-driven language
+
+LENGTH: 180-240 words total. No filler.
+
+FORMAT REQUIREMENTS:
+- Start with "Dear Hiring Manager," (or use hiring manager's name if provided in job posting)
+- End with "Sincerely,"
+- Do NOT include: contact information, date, company address, or signature (these will be added separately)
+
+WRITE AS: A capable builder already doing the work. Calm confidence. Builder mindset.
+
+Write the cover letter now:`;
 
   return prompt;
 }
