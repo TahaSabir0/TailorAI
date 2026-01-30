@@ -155,17 +155,17 @@ function cleanLetterBody(letterBody) {
         cleaned = cleaned.replace(pattern, '');
     }
 
-    // Remove closing variations at the end
+    // Remove closing variations at the end (including when on separate lines)
     const closingPatterns = [
-        /\s*Sincerely,?\s*$/i,
-        /\s*Best\s+regards,?\s*$/i,
-        /\s*Kind\s+regards,?\s*$/i,
-        /\s*Regards,?\s*$/i,
-        /\s*Thank\s+you,?\s*$/i,
-        /\s*Yours\s+truly,?\s*$/i,
-        /\s*Yours\s+sincerely,?\s*$/i,
-        /\s*Best,?\s*$/i,
-        /\s*Warm\s+regards,?\s*$/i,
+        /[\n\s]*Sincerely,?[\n\s]*$/i,
+        /[\n\s]*Best\s+regards,?[\n\s]*$/i,
+        /[\n\s]*Kind\s+regards,?[\n\s]*$/i,
+        /[\n\s]*Regards,?[\n\s]*$/i,
+        /[\n\s]*Thank\s+you,?[\n\s]*$/i,
+        /[\n\s]*Yours\s+truly,?[\n\s]*$/i,
+        /[\n\s]*Yours\s+sincerely,?[\n\s]*$/i,
+        /[\n\s]*Best,?[\n\s]*$/i,
+        /[\n\s]*Warm\s+regards,?[\n\s]*$/i,
     ];
 
     for (const pattern of closingPatterns) {
@@ -174,7 +174,7 @@ function cleanLetterBody(letterBody) {
 
     // Also remove any signature name that might appear at the very end
     // (usually after closing, on its own line)
-    cleaned = cleaned.replace(/\n[A-Z][a-z]+\s+[A-Z][a-z]+\s*$/, '');
+    cleaned = cleaned.replace(/[\n\s]*[A-Z][a-z]+\s+[A-Z][a-z]+[\n\s]*$/, '');
 
     return cleaned.trim();
 }

@@ -15,10 +15,14 @@ async function generateCoverLetter(cvText, jobData, apiKey) {
 
   // Call Gemini API
   try {
+    console.log('🤖 Calling Gemini API to generate cover letter...');
     const response = await callGeminiAPI(prompt, apiKey);
+    console.log('✅ Gemini API call successful. Generated', response.length, 'characters');
     return response;
   } catch (error) {
-    console.error('Error calling Gemini API:', error);
+    console.error('❌ GEMINI ERROR: Failed to generate cover letter');
+    console.error('Error details:', error.message);
+    console.error('Full error:', error);
     throw error;
   }
 }
@@ -129,6 +133,8 @@ async function callGeminiAPI(prompt, apiKey, maxRetries = 3) {
       if (response.status === 429) {
         const errorData = await response.json().catch(() => ({}));
         const waitTime = Math.pow(2, attempt) * 2000; // Exponential backoff: 2s, 4s, 8s
+        console.warn(`⚠️ GEMINI RATE LIMIT: Attempt ${attempt + 1}/${maxRetries}. Retrying in ${waitTime/1000}s...`);
+        console.warn('Rate limit response:', errorData);
         await sleep(waitTime);
         continue;
       }
@@ -136,24 +142,39 @@ async function callGeminiAPI(prompt, apiKey, maxRetries = 3) {
       if (!response.ok) {
         const errorData = await response.json();
         const errorMessage = errorData.error?.message || `API request failed with status ${response.status}`;
+        console.error(`❌ GEMINI API ERROR: Status ${response.status}`);
+        console.error('Error message:', errorMessage);
+        console.error('Full error data:', JSON.stringify(errorData, null, 2));
         throw new Error(errorMessage);
       }
 
       const data = await response.json();
 
       if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-        throw new Error('Invalid response from Gemini API');
+        console.error('❌ GEMINI ERROR: Invalid response structure from Gemini API');
+        console.error('Response data:', JSON.stringify(data, null, 2));
+        throw new Error('Invalid response from Gemini API - no content generated');
       }
 
-      return data.candidates[0].content.parts[0].text;
+      const generatedText = data.candidates[0].content.parts[0].text;
+
+      if (!generatedText || generatedText.trim().length === 0) {
+        console.error('❌ GEMINI ERROR: Gemini returned empty content');
+        console.error('Full response:', JSON.stringify(data, null, 2));
+        throw new Error('Gemini API returned empty content');
+      }
+
+      return generatedText;
     } catch (error) {
       lastError = error;
-      console.error(`Gemini API error (attempt ${attempt + 1}):`, error);
+      console.error(`❌ GEMINI ERROR (attempt ${attempt + 1}/${maxRetries}):`, error.message);
 
       // Check if it's a rate limit error in the message
       if (error.message.includes('RATE_LIMIT') || error.message.includes('429') || error.message.includes('Resource has been exhausted')) {
+        console.warn(`⚠️ Rate limit detected in error message. Attempt ${attempt + 1}/${maxRetries}`);
         if (attempt < maxRetries - 1) {
           const waitTime = Math.pow(2, attempt) * 1000;
+          console.warn(`Retrying in ${waitTime/1000}s...`);
           await sleep(waitTime);
           continue;
         }
@@ -161,14 +182,18 @@ async function callGeminiAPI(prompt, apiKey, maxRetries = 3) {
 
       // For non-rate-limit errors, throw immediately
       if (error.message.includes('API_KEY_INVALID') || error.message.includes('API key not valid')) {
+        console.error('❌ GEMINI ERROR: Invalid API key detected');
         throw new Error('Invalid API key. Please check your Gemini API key in settings.');
       } else if (error.message.includes('QUOTA') || error.message.includes('quota')) {
+        console.error('❌ GEMINI ERROR: API quota exceeded');
         throw new Error('API quota exceeded. Please check your Google Cloud billing.');
       }
     }
   }
 
   // If we've exhausted retries
+  console.error('❌ GEMINI ERROR: All retry attempts exhausted');
+  console.error('Last error:', lastError?.message);
   throw new Error('Rate limit exceeded. Please wait a minute and try again.');
 }
 
