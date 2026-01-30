@@ -6,8 +6,6 @@
  * This will be fully implemented in Stage 2 when libraries are added
  */
 async function extractTextFromCV(file) {
-  console.log('Extracting text from CV:', file.name, file.type);
-
   const fileType = file.type;
 
   try {
@@ -28,8 +26,6 @@ async function extractTextFromCV(file) {
  * Extract text from PDF file using PDF.js
  */
 async function extractFromPDF(file) {
-  console.log('Extracting text from PDF:', file.name);
-
   try {
     // Read file as ArrayBuffer
     const arrayBuffer = await readFileAsArrayBuffer(file);
@@ -44,8 +40,6 @@ async function extractFromPDF(file) {
     const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
     const pdf = await loadingTask.promise;
 
-    console.log('PDF loaded. Number of pages:', pdf.numPages);
-
     // Extract text from all pages
     let fullText = '';
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
@@ -55,7 +49,6 @@ async function extractFromPDF(file) {
       fullText += pageText + '\n';
     }
 
-    console.log('PDF text extracted. Length:', fullText.length);
     return fullText.trim();
   } catch (error) {
     console.error('Error extracting text from PDF:', error);
@@ -67,8 +60,6 @@ async function extractFromPDF(file) {
  * Extract text from DOCX file using Mammoth.js
  */
 async function extractFromDOCX(file) {
-  console.log('Extracting text from DOCX:', file.name);
-
   try {
     // Read file as ArrayBuffer
     const arrayBuffer = await readFileAsArrayBuffer(file);
@@ -81,12 +72,6 @@ async function extractFromDOCX(file) {
 
     const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
     const text = result.value;
-
-    console.log('DOCX text extracted. Length:', text.length);
-
-    if (result.messages && result.messages.length > 0) {
-      console.warn('Mammoth.js warnings:', result.messages);
-    }
 
     return text.trim();
   } catch (error) {
@@ -298,17 +283,11 @@ Return the JSON now:`;
     // Parse the JSON response
     const extractedData = JSON.parse(responseText);
 
-    // Validate required fields
-    if (!extractedData.firstName || !extractedData.lastName || !extractedData.email) {
-      console.warn('Some required fields are missing from Gemini extraction');
-    }
-
     return extractedData;
   } catch (error) {
     console.error('Error extracting structured CV data:', error);
 
     // Fallback to basic extraction if Gemini fails
-    console.log('Falling back to basic extraction...');
     const nameInfo = extractNameFromCV(cvText);
 
     return {

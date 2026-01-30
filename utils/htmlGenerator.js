@@ -93,7 +93,6 @@ async function populateCVMetadataHtml(cvMetadata) {
             .replace(/\{\{FULL_NAME\}\}/g, escapeHtml(cvMetadata.fullName))
             .replace(/\{\{CONTACT_LINE\}\}/g, contactLine);
 
-        console.log('CV metadata populated into HTML template');
         return populatedTemplate;
     } catch (error) {
         console.error('Error populating CV metadata into HTML:', error);
@@ -109,7 +108,6 @@ async function storePartialHtmlTemplate(partialTemplate) {
         await chrome.storage.local.set({
             htmlTemplate: partialTemplate
         });
-        console.log('Partial HTML template stored successfully');
         return { success: true };
     } catch (error) {
         console.error('Error storing partial HTML template:', error);
@@ -224,7 +222,6 @@ function completeHtmlTemplateWithJobData(partialTemplate, jobData, letterBody) {
             .replace(/\{\{COMPANY_NAME\}\}/g, escapeHtml(jobData.company || 'Hiring Team'))
             .replace(/\{\{LETTER_BODY\}\}/g, formattedBody);
 
-        console.log('HTML template completed with job data');
         return completedTemplate;
     } catch (error) {
         console.error('Error completing HTML template with job data:', error);
@@ -244,7 +241,6 @@ async function generateCoverLetterHtml(jobData, letterBody) {
         // Complete with job-specific data
         const completedHtml = completeHtmlTemplateWithJobData(partialTemplate, jobData, letterBody);
 
-        console.log('Complete HTML document generated');
         return completedHtml;
     } catch (error) {
         console.error('Error generating cover letter HTML:', error);

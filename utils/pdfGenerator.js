@@ -135,7 +135,6 @@ async function generateCoverLetterPDF(coverLetter, jobData, cvMetadata) {
         // Download the PDF
         pdf.save(filename);
 
-        console.log('PDF generated successfully:', filename);
         return filename;
     } catch (error) {
         console.error('Error generating PDF:', error);

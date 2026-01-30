@@ -1,13 +1,9 @@
 // Content Script for TailorAI
 // Extracts job posting information from web pages
 
-console.log("TailorAI content script loaded");
-
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === "extractJobPosting") {
-    console.log("Extracting job posting data...");
-
     try {
       const jobData = extractJobData();
       sendResponse({ success: true, data: jobData });
@@ -51,7 +47,6 @@ function extractJobData() {
   jobData.company = cleanText(jobData.company);
   jobData.description = cleanText(jobData.description);
 
-  console.log("Extracted job data:", jobData);
   return jobData;
 }
 
@@ -157,13 +152,4 @@ function cleanText(text) {
     .replace(/\s+/g, " ") // Replace multiple spaces with single space
     .replace(/\n+/g, "\n") // Replace multiple newlines with single newline
     .trim();
-}
-
-// Helper function to validate extracted data
-function validateJobData(jobData) {
-  const hasTitle = jobData.jobTitle && jobData.jobTitle.length > 3;
-  const hasDescription =
-    jobData.description && jobData.description.length > 100;
-
-  return hasTitle && hasDescription;
 }

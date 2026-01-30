@@ -146,14 +146,10 @@ async function handleCVUpload(event) {
       cvMetadata: metadata
     });
 
-    console.log('CV uploaded successfully:', metadata);
-
     // Populate HTML template with CV metadata
     showMessage('Preparing cover letter template...', 'info');
     const partialTemplate = await populateCVMetadataHtml(metadata);
     await storePartialHtmlTemplate(partialTemplate);
-
-    console.log('HTML template populated and stored');
 
     // Update UI
     updateCVStatusDisplay(metadata);
@@ -257,8 +253,6 @@ async function handleTailorClick() {
       return;
     }
 
-    console.log('Job data extracted:', jobData);
-
     // Check for unsupported sites
     if (jobData.source === 'Unsupported') {
       showMessage(jobData.error || 'This site is not supported. Please use Handshake.', 'error');
@@ -275,8 +269,6 @@ async function handleTailorClick() {
 
     // Stage 4: Call OpenAI API to generate cover letter
     const coverLetter = await generateCoverLetter(result.cvText, jobData, result.openaiApiKey);
-
-    console.log('Cover letter generated:', coverLetter);
 
     // Store the generated cover letter
     await chrome.storage.local.set({ currentCoverLetter: coverLetter });

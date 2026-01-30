@@ -5,8 +5,6 @@
  * Generate cover letter using Gemini API
  */
 async function generateCoverLetter(cvText, jobData, apiKey) {
-  console.log('Generating cover letter with Gemini...');
-
   // Validate inputs
   if (!cvText) throw new Error('CV text is required');
   if (!jobData || !jobData.jobTitle) throw new Error('Job data is required');
@@ -85,15 +83,8 @@ async function callGeminiAPI(prompt, apiKey, maxRetries = 3) {
 
   let lastError;
 
-  console.log('%c=== Gemini API Debug Info ===', 'color: #FF5722; font-weight: bold;');
-  console.log('API Key (first 10 chars):', apiKey.substring(0, 10) + '...');
-  console.log('API Key length:', apiKey.length);
-  console.log('Request URL:', url.replace(apiKey, 'API_KEY_HIDDEN'));
-
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      console.log(`Attempt ${attempt + 1}/${maxRetries}...`);
-
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -102,22 +93,16 @@ async function callGeminiAPI(prompt, apiKey, maxRetries = 3) {
         body: JSON.stringify(requestBody)
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
       // Handle rate limiting with retry
       if (response.status === 429) {
         const errorData = await response.json().catch(() => ({}));
-        console.log('%cRate limit response body:', 'color: orange;', errorData);
         const waitTime = Math.pow(2, attempt) * 2000; // Exponential backoff: 2s, 4s, 8s
-        console.log(`Rate limited. Retrying in ${waitTime / 1000}s... (attempt ${attempt + 1}/${maxRetries})`);
         await sleep(waitTime);
         continue;
       }
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.log('%cAPI Error Response:', 'color: red;', errorData);
         const errorMessage = errorData.error?.message || `API request failed with status ${response.status}`;
         throw new Error(errorMessage);
       }
@@ -137,7 +122,6 @@ async function callGeminiAPI(prompt, apiKey, maxRetries = 3) {
       if (error.message.includes('RATE_LIMIT') || error.message.includes('429') || error.message.includes('Resource has been exhausted')) {
         if (attempt < maxRetries - 1) {
           const waitTime = Math.pow(2, attempt) * 1000;
-          console.log(`Rate limited. Retrying in ${waitTime / 1000}s... (attempt ${attempt + 1}/${maxRetries})`);
           await sleep(waitTime);
           continue;
         }
