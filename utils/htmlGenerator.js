@@ -35,41 +35,39 @@ function escapeHtml(text) {
 
 /**
  * Build contact line HTML from CV metadata
- * Format: email | phone | linkedin | github | portfolio
+ * Format: email | phone | LinkedIn | GitHub | Portfolio
  * Only includes available fields
+ * Links show clean titles (not raw URLs) with hyperlinks
  */
 function buildContactLineHtml(cvMetadata) {
     const contactParts = [];
 
-    // Email is required
-    if (cvMetadata.email) {
-        contactParts.push(`<a href="mailto:${escapeHtml(cvMetadata.email)}">${escapeHtml(cvMetadata.email)}</a>`);
-    }
-
-    // Add phone if available
+    // Phone first (plain text)
     if (cvMetadata.phoneNumber) {
         contactParts.push(escapeHtml(cvMetadata.phoneNumber));
     }
 
-    // Add LinkedIn if available
+    // Email second (plain text, no hyperlink)
+    if (cvMetadata.email) {
+        contactParts.push(escapeHtml(cvMetadata.email));
+    }
+
+    // Add LinkedIn if available - display as "LinkedIn" title
     if (cvMetadata.linkedin) {
-        const linkedinClean = cvMetadata.linkedin.replace(/^https?:\/\//, '');
         const linkedinUrl = cvMetadata.linkedin.startsWith('http') ? cvMetadata.linkedin : `https://${cvMetadata.linkedin}`;
-        contactParts.push(`<a href="${escapeHtml(linkedinUrl)}">${escapeHtml(linkedinClean)}</a>`);
+        contactParts.push(`<a href="${escapeHtml(linkedinUrl)}">LinkedIn</a>`);
     }
 
-    // Add GitHub if available
+    // Add GitHub if available - display as "GitHub" title
     if (cvMetadata.github) {
-        const githubClean = cvMetadata.github.replace(/^https?:\/\//, '');
         const githubUrl = cvMetadata.github.startsWith('http') ? cvMetadata.github : `https://${cvMetadata.github}`;
-        contactParts.push(`<a href="${escapeHtml(githubUrl)}">${escapeHtml(githubClean)}</a>`);
+        contactParts.push(`<a href="${escapeHtml(githubUrl)}">GitHub</a>`);
     }
 
-    // Add portfolio if available
+    // Add portfolio if available - display as "Portfolio" title
     if (cvMetadata.portfolio) {
-        const portfolioClean = cvMetadata.portfolio.replace(/^https?:\/\//, '');
         const portfolioUrl = cvMetadata.portfolio.startsWith('http') ? cvMetadata.portfolio : `https://${cvMetadata.portfolio}`;
-        contactParts.push(`<a href="${escapeHtml(portfolioUrl)}">${escapeHtml(portfolioClean)}</a>`);
+        contactParts.push(`<a href="${escapeHtml(portfolioUrl)}">Portfolio</a>`);
     }
 
     // Join with separator spans
