@@ -24,6 +24,7 @@ async function extractTextFromCV(file) {
 
 /**
  * Extract text from PDF file using PDF.js
+ * Also extracts hyperlink URLs from PDF annotations
  */
 async function extractFromPDF(file) {
   try {
@@ -40,13 +41,38 @@ async function extractFromPDF(file) {
     const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
     const pdf = await loadingTask.promise;
 
-    // Extract text from all pages
+    // Extract text and hyperlinks from all pages
     let fullText = '';
+    let allUrls = new Set(); // Use Set to avoid duplicates
+
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       const page = await pdf.getPage(pageNum);
+
+      // Extract visible text
       const textContent = await page.getTextContent();
       const pageText = textContent.items.map(item => item.str).join(' ');
       fullText += pageText + '\n';
+
+      // Extract hyperlink URLs from annotations
+      try {
+        const annotations = await page.getAnnotations();
+        for (const annotation of annotations) {
+          if (annotation.subtype === 'Link' && annotation.url) {
+            allUrls.add(annotation.url);
+          }
+        }
+      } catch (annotError) {
+        console.warn('Could not extract annotations from page', pageNum, annotError);
+      }
+    }
+
+    // Append extracted URLs to the text so Gemini can find them
+    if (allUrls.size > 0) {
+      fullText += '\n\n--- EXTRACTED HYPERLINKS ---\n';
+      for (const url of allUrls) {
+        fullText += url + '\n';
+      }
+      console.log('📎 Extracted', allUrls.size, 'hyperlink(s) from PDF:', Array.from(allUrls));
     }
 
     return fullText.trim();
@@ -58,6 +84,7 @@ async function extractFromPDF(file) {
 
 /**
  * Extract text from DOCX file using Mammoth.js
+ * Converts to HTML first to preserve hyperlinks, then extracts text + URLs
  */
 async function extractFromDOCX(file) {
   try {
@@ -70,8 +97,36 @@ async function extractFromDOCX(file) {
       throw new Error('Mammoth.js library not loaded');
     }
 
-    const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-    const text = result.value;
+    // Convert to HTML to preserve hyperlinks
+    const htmlResult = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+    const html = htmlResult.value;
+
+    // Parse HTML to extract text and hyperlinks
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    // Extract all hyperlink URLs
+    const links = doc.querySelectorAll('a[href]');
+    const urls = new Set();
+    links.forEach(link => {
+      const href = link.getAttribute('href');
+      // Filter out mailto: and local anchors, keep http/https URLs
+      if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+        urls.add(href);
+      }
+    });
+
+    // Extract plain text
+    let text = doc.body.textContent || '';
+
+    // Append extracted URLs to the text so Gemini can find them
+    if (urls.size > 0) {
+      text += '\n\n--- EXTRACTED HYPERLINKS ---\n';
+      for (const url of urls) {
+        text += url + '\n';
+      }
+      console.log('📎 Extracted', urls.size, 'hyperlink(s) from DOCX:', Array.from(urls));
+    }
 
     return text.trim();
   } catch (error) {
@@ -183,7 +238,7 @@ async function createCVMetadata(fileName, cvText, apiKey) {
   // Extract structured data from CV using Gemini
   const structuredData = await extractStructuredCVData(cvText, apiKey);
 
-  return {
+  const metadata = {
     // Personal Information
     firstName: structuredData.firstName,
     lastName: structuredData.lastName,
@@ -206,6 +261,34 @@ async function createCVMetadata(fileName, cvText, apiKey) {
     textLength: cvText.length,
     wordCount: cvText.split(/\s+/).length
   };
+
+  // Log all extracted CV data
+  console.log('\n========================================');
+  console.log('📄 CV UPLOAD - EXTRACTED DATA');
+  console.log('========================================');
+  console.log('\n👤 PERSONAL INFORMATION:');
+  console.log(`   First Name:    ${metadata.firstName}`);
+  console.log(`   Last Name:     ${metadata.lastName}`);
+  console.log(`   Full Name:     ${metadata.fullName}`);
+  console.log(`   Email:         ${metadata.email}`);
+  console.log(`   Phone:         ${metadata.phoneNumber || '(not found)'}`);
+  console.log('\n🔗 HYPERLINKS / URLs:');
+  console.log(`   GitHub:        ${metadata.github || '(not found)'}`);
+  console.log(`   LinkedIn:      ${metadata.linkedin || '(not found)'}`);
+  console.log(`   Portfolio:     ${metadata.portfolio || '(not found)'}`);
+  console.log('\n📁 FILE METADATA:');
+  console.log(`   File Name:     ${metadata.fileName}`);
+  console.log(`   Upload Date:   ${metadata.uploadDate}`);
+  console.log(`   Text Length:   ${metadata.textLength} characters`);
+  console.log(`   Word Count:    ${metadata.wordCount} words`);
+  console.log('\n📝 RESUME BODY PREVIEW (first 500 chars):');
+  console.log(`   ${metadata.resumeBody?.substring(0, 500) || '(empty)'}...`);
+  console.log('\n========================================');
+  console.log('📊 FULL METADATA OBJECT:');
+  console.log(metadata);
+  console.log('========================================\n');
+
+  return metadata;
 }
 
 /**

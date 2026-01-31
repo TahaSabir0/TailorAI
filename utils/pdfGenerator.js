@@ -40,7 +40,8 @@ async function generateCoverLetterPDF(coverLetter, jobData, cvMetadata) {
 
         // Create style element for the container
         const styleElement = document.createElement('style');
-        styleElement.textContent = styles ? styles.textContent : '';
+        styleElement.textContent = (styles ? styles.textContent : '') +
+            '\n.contact-line a { color: #2563EB !important; }';
         container.appendChild(styleElement);
 
         // Clone the content
@@ -52,6 +53,23 @@ async function generateCoverLetterPDF(coverLetter, jobData, cvMetadata) {
 
         // Wait for fonts and styles to load
         await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Extract link positions before rendering to canvas (canvas loses interactivity)
+        const linkElements = contentClone.querySelectorAll('a[href]');
+        const containerRect = contentClone.getBoundingClientRect();
+        const linkData = [];
+        for (const link of linkElements) {
+            const rect = link.getBoundingClientRect();
+            // Use getAttribute to get the raw href value, not the browser-resolved .href
+            const rawHref = link.getAttribute('href');
+            linkData.push({
+                url: rawHref,
+                x: rect.left - containerRect.left,
+                y: rect.top - containerRect.top,
+                width: rect.width,
+                height: rect.height
+            });
+        }
 
         // Use html2canvas to render the container
         const canvas = await html2canvas(contentClone, {
@@ -124,6 +142,20 @@ async function generateCoverLetterPDF(coverLetter, jobData, cvMetadata) {
             }
         }
 
+        // Add clickable link annotations to the PDF on page 1 (contact links are in the header)
+        pdf.setPage(1);
+        const containerWidth = contentClone.offsetWidth || 816;
+        const pxToInch = pageWidth / containerWidth;
+        for (const link of linkData) {
+            const pdfX = link.x * pxToInch;
+            const pdfY = link.y * pxToInch;
+            const pdfW = link.width * pxToInch;
+            const pdfH = link.height * pxToInch;
+            if (link.url && pdfW > 0 && pdfH > 0) {
+                pdf.link(pdfX, pdfY, pdfW, pdfH, { url: link.url });
+            }
+        }
+
         // Clean up
         document.body.removeChild(container);
 
@@ -180,17 +212,62 @@ function generateFallbackPDF(coverLetter, jobData, cvMetadata) {
     doc.text(fullName.toUpperCase(), pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 10;
 
-    // Contact line
-    const contactParts = [];
-    if (cvMetadata?.email) contactParts.push(cvMetadata.email);
-    if (cvMetadata?.phoneNumber) contactParts.push(cvMetadata.phoneNumber);
-    if (cvMetadata?.linkedin) contactParts.push(cvMetadata.linkedin.replace(/^https?:\/\//, ''));
-    if (cvMetadata?.github) contactParts.push(cvMetadata.github.replace(/^https?:\/\//, ''));
+    // Contact line with clickable links
+    const linkColor = [37, 99, 235]; // #2563EB
+    const contactItems = [];
+    if (cvMetadata?.email) {
+        contactItems.push({ text: cvMetadata.email, url: `mailto:${cvMetadata.email}` });
+    }
+    if (cvMetadata?.phoneNumber) {
+        contactItems.push({ text: cvMetadata.phoneNumber, url: null });
+    }
+    if (cvMetadata?.linkedin) {
+        const display = cvMetadata.linkedin.replace(/^https?:\/\//, '');
+        const url = cvMetadata.linkedin.startsWith('http') ? cvMetadata.linkedin : `https://${cvMetadata.linkedin}`;
+        contactItems.push({ text: display, url: url });
+    }
+    if (cvMetadata?.github) {
+        const display = cvMetadata.github.replace(/^https?:\/\//, '');
+        const url = cvMetadata.github.startsWith('http') ? cvMetadata.github : `https://${cvMetadata.github}`;
+        contactItems.push({ text: display, url: url });
+    }
+    if (cvMetadata?.portfolio) {
+        const display = cvMetadata.portfolio.replace(/^https?:\/\//, '');
+        const url = cvMetadata.portfolio.startsWith('http') ? cvMetadata.portfolio : `https://${cvMetadata.portfolio}`;
+        contactItems.push({ text: display, url: url });
+    }
 
-    if (contactParts.length > 0) {
+    if (contactItems.length > 0) {
         doc.setFontSize(9);
-        doc.setTextColor(...subtitleColor);
-        doc.text(contactParts.join(' | '), pageWidth / 2, yPosition, { align: 'center' });
+        const separator = ' | ';
+        // Calculate total width for centering
+        let totalWidth = 0;
+        for (let i = 0; i < contactItems.length; i++) {
+            totalWidth += doc.getTextWidth(contactItems[i].text);
+            if (i < contactItems.length - 1) {
+                totalWidth += doc.getTextWidth(separator);
+            }
+        }
+
+        let xPos = (pageWidth - totalWidth) / 2;
+
+        for (let i = 0; i < contactItems.length; i++) {
+            const item = contactItems[i];
+            if (item.url) {
+                doc.setTextColor(...linkColor);
+                doc.textWithLink(item.text, xPos, yPosition, { url: item.url });
+            } else {
+                doc.setTextColor(...subtitleColor);
+                doc.text(item.text, xPos, yPosition);
+            }
+            xPos += doc.getTextWidth(item.text);
+
+            if (i < contactItems.length - 1) {
+                doc.setTextColor(...subtitleColor);
+                doc.text(separator, xPos, yPosition);
+                xPos += doc.getTextWidth(separator);
+            }
+        }
     }
     yPosition += 5;
 

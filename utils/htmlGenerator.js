@@ -155,6 +155,10 @@ function cleanLetterBody(letterBody) {
         cleaned = cleaned.replace(pattern, '');
     }
 
+    // Remove signature name first (before closing), since it may appear after "Sincerely,"
+    // and would prevent the closing pattern from matching the end of the string
+    cleaned = cleaned.replace(/[\n\s]*[A-Z][a-z]+\s+[A-Z][a-z]+[\n\s]*$/, '');
+
     // Remove closing variations at the end (including when on separate lines)
     const closingPatterns = [
         /[\n\s]*Sincerely,?[\n\s]*$/i,
@@ -171,10 +175,6 @@ function cleanLetterBody(letterBody) {
     for (const pattern of closingPatterns) {
         cleaned = cleaned.replace(pattern, '');
     }
-
-    // Also remove any signature name that might appear at the very end
-    // (usually after closing, on its own line)
-    cleaned = cleaned.replace(/[\n\s]*[A-Z][a-z]+\s+[A-Z][a-z]+[\n\s]*$/, '');
 
     return cleaned.trim();
 }

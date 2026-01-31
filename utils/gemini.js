@@ -84,9 +84,10 @@ STRICTLY AVOID THESE CLICHÉS:
 LENGTH: 180-240 words total. No filler.
 
 FORMAT REQUIREMENTS:
-- Start with "Dear Hiring Manager," (or use hiring manager's name if provided in job posting)
-- End with "Sincerely,"
-- Do NOT include: contact information, date, company address, or signature (these will be added separately)
+- Do NOT include a salutation (no "Dear Hiring Manager,") — it will be added separately
+- Do NOT include a closing (no "Sincerely,") — it will be added separately
+- Do NOT include: contact information, date, company address, or signature name — these will all be added separately
+- ONLY output the body paragraphs of the cover letter, nothing else
 
 WRITE AS: A capable builder already doing the work. Calm confidence. Builder mindset.
 
