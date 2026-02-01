@@ -81,7 +81,7 @@ STRICTLY AVOID THESE CLICHÉS:
 - Empty enthusiasm or generic statements that could apply to any role
 - Overly corporate or HR-driven language
 
-LENGTH: 180-240 words total. No filler.
+LENGTH: 280-350 words total. No filler.
 
 FORMAT REQUIREMENTS:
 - Do NOT include a salutation (no "Dear Hiring Manager,") — it will be added separately
