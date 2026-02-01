@@ -199,6 +199,41 @@ function formatLetterBodyHtml(letterBody) {
 }
 
 /**
+ * Format company address object into HTML for the cover letter recipient block
+ * Returns formatted address string or empty string if no address
+ */
+function formatCompanyAddress(companyAddress) {
+    if (!companyAddress) return '';
+
+    const lines = [];
+
+    // Street address line(s)
+    if (companyAddress.addressLineOne) {
+        lines.push(escapeHtml(companyAddress.addressLineOne));
+    }
+    if (companyAddress.addressLineTwo) {
+        lines.push(escapeHtml(companyAddress.addressLineTwo));
+    }
+
+    // City, State ZIP line
+    const cityStateParts = [];
+    if (companyAddress.city) cityStateParts.push(companyAddress.city);
+    if (companyAddress.state) cityStateParts.push(companyAddress.state);
+    const cityState = cityStateParts.join(', ');
+
+    if (cityState && companyAddress.zipcode) {
+        lines.push(escapeHtml(cityState + ' ' + companyAddress.zipcode));
+    } else if (cityState) {
+        lines.push(escapeHtml(cityState));
+    } else if (companyAddress.zipcode) {
+        lines.push(escapeHtml(companyAddress.zipcode));
+    }
+
+    if (lines.length === 0) return '';
+    return '<br />' + lines.join('<br />');
+}
+
+/**
  * Complete HTML template with job-specific data (Phase 2)
  * This happens when generating a cover letter for a job
  */
@@ -214,10 +249,14 @@ function completeHtmlTemplateWithJobData(partialTemplate, jobData, letterBody) {
         // Format letter body as HTML paragraphs
         const formattedBody = formatLetterBodyHtml(letterBody);
 
+        // Format company address
+        const companyAddressHtml = formatCompanyAddress(jobData.companyAddress);
+
         // Complete the template with job-specific data
         const completedTemplate = partialTemplate
             .replace(/\{\{DATE\}\}/g, escapeHtml(date))
             .replace(/\{\{COMPANY_NAME\}\}/g, escapeHtml(jobData.company || 'Hiring Team'))
+            .replace(/\{\{COMPANY_ADDRESS\}\}/g, companyAddressHtml)
             .replace(/\{\{LETTER_BODY\}\}/g, formattedBody);
 
         return completedTemplate;

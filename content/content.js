@@ -4,20 +4,21 @@
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === "extractJobPosting") {
-    try {
-      const jobData = extractJobData();
-      sendResponse({ success: true, data: jobData });
-    } catch (error) {
-      console.error("Error extracting job data:", error);
-      sendResponse({ success: false, error: error.message });
-    }
+    extractJobData()
+      .then((jobData) => {
+        sendResponse({ success: true, data: jobData });
+      })
+      .catch((error) => {
+        console.error("Error extracting job data:", error);
+        sendResponse({ success: false, error: error.message });
+      });
   }
 
   return true; // Keep message channel open
 });
 
 // Extract job posting data from the current page
-function extractJobData() {
+async function extractJobData() {
   const url = window.location.href;
   let jobData = {
     jobTitle: "",
@@ -28,7 +29,7 @@ function extractJobData() {
 
   // Only support Handshake for now
   if (url.includes("handshake.com") || url.includes("joinhandshake.com")) {
-    jobData = extractHandshakeJob();
+    jobData = await extractHandshakeJob();
   } else {
     // Not a supported site
     return {
@@ -50,8 +51,79 @@ function extractJobData() {
   return jobData;
 }
 
+// Fetch employer address from Handshake GraphQL API
+async function fetchEmployerAddress(employerId) {
+  try {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    if (!csrfToken) return null;
+
+    const query = `query getEmployerBrand($employerId: ID!) {
+  employerBrand(employerId: $employerId) {
+    employer {
+      location {
+        addressLineOne
+        addressLineTwo
+        city
+        state
+        zipcode
+        country
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}`;
+
+    const response = await fetch("https://app.joinhandshake.com/hs/graphql", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken,
+      },
+      body: JSON.stringify({
+        operationName: "getEmployerBrand",
+        variables: { employerId },
+        query,
+      }),
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const location = data?.data?.employerBrand?.employer?.location;
+    if (!location) return null;
+
+    return {
+      addressLineOne: location.addressLineOne || "",
+      addressLineTwo: location.addressLineTwo || "",
+      city: location.city || "",
+      state: location.state || "",
+      zipcode: location.zipcode || "",
+      country: location.country || "",
+    };
+  } catch (error) {
+    console.warn("Failed to fetch employer address:", error);
+    return null;
+  }
+}
+
+// Extract employer ID from the page
+function extractEmployerId() {
+  // Look for employer link like /employers/12345 or /e/12345
+  const employerLink = document.querySelector('a[href*="/employers/"]') ||
+    document.querySelector('a[href*="/e/"]');
+  if (employerLink) {
+    const href = employerLink.getAttribute("href");
+    const match = href.match(/\/(?:employers|e)\/(\d+)/);
+    if (match) return match[1];
+  }
+  return null;
+}
+
 // Extract job data from Handshake
-function extractHandshakeJob() {
+async function extractHandshakeJob() {
   // 1. Get Job Title - Handshake uses the only <h1> for the job title
   const jobTitle = document.querySelector("h1")?.innerText || "";
 
@@ -134,11 +206,22 @@ function extractHandshakeJob() {
     location = locationLines.join(" • ");
   }
 
+  // 5. Fetch employer address from GraphQL API (best-effort)
+  let companyAddress = null;
+  const employerId = extractEmployerId();
+  if (employerId) {
+    const address = await fetchEmployerAddress(employerId);
+    if (address) {
+      companyAddress = address;
+    }
+  }
+
   return {
     jobTitle,
     company,
     description,
     location,
+    companyAddress,
     url: window.location.href,
     source: "Handshake",
   };
