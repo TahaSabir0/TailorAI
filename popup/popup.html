@@ -16,7 +16,11 @@
 
     <div class="status-section" id="statusSection">
       <div class="status-message" id="statusMessage">
-        <span class="status-icon">ℹ️</span>
+        <svg class="status-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
         <span id="statusText">Upload your CV to get started</span>
       </div>
     </div>
@@ -30,12 +34,24 @@
         <div class="cv-status" id="cvStatus">
           <p class="no-cv-text">No CV uploaded yet</p>
         </div>
+        <div class="icon-wrapper">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="upload-icon">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 1-2 2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+        </div>
         <input type="file" id="cvUpload" accept=".pdf,.docx" style="display: none;">
         <button id="uploadCvBtn" class="secondary-btn">Choose CV File</button>
       </div>
 
       <div class="setting-group" style="margin-top: 20px;">
         <p class="step-instruction"><span class="step-number">Step 2:</span> Add your Gemini API key</p>
+        <div class="icon-wrapper">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="key-icon">
+            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+          </svg>
+        </div>
         <input type="password" id="apiKey" placeholder="AIza..." />
         <button id="saveApiKeyBtn" class="secondary-btn">Save API Key</button>
         <p class="help-text">
@@ -80,6 +96,13 @@
           <div class="cv-status" id="cvStatusSettings">
             <p class="no-cv-text">No CV uploaded yet</p>
           </div>
+          <div class="icon-wrapper">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="upload-icon">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
           <input type="file" id="cvUploadSettings" accept=".pdf,.docx" style="display: none;">
           <button id="uploadCvBtnSettings" class="secondary-btn">Choose CV File</button>
           <button id="deleteCvBtn" class="danger-btn" style="display: none;">Delete CV</button>
@@ -87,6 +110,11 @@
 
         <div class="setting-group">
           <label for="apiKeySettings">Gemini API Key</label>
+          <div class="icon-wrapper">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="key-icon">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+            </svg>
+          </div>
           <input type="password" id="apiKeySettings" placeholder="AIza..." />
           <button id="saveApiKeyBtnSettings" class="secondary-btn">Save API Key</button>
           <p class="help-text">
