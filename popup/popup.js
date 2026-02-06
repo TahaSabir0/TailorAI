@@ -67,7 +67,7 @@ function switchMode(mode) {
       break;
     case MODES.READY:
       readySection.style.display = 'block';
-      updateStatusMessage('✅', 'Ready to generate cover letters!', 'success');
+      updateStatusMessage(null, 'Ready to generate cover letters!', 'success');
       break;
     case MODES.SETTINGS:
       settingsSection.style.display = 'block';
@@ -141,11 +141,11 @@ async function checkCVStatus() {
       // CV exists
       updateCVStatusDisplay(result.cvMetadata);
       enableTailorButton();
-      updateStatusMessage('✅', 'Ready to generate cover letters!', 'success');
+      updateStatusMessage(null, 'Ready to generate cover letters!', 'success');
     } else {
       // No CV
       disableTailorButton();
-      updateStatusMessage('ℹ️', 'Upload your CV to get started', 'info');
+      updateStatusMessage(null, 'Upload your CV to get started', 'info');
     }
   } catch (error) {
     console.error('Error checking CV status:', error);
@@ -284,7 +284,7 @@ async function handleCVUpload(event) {
     // Update UI
     updateCVStatusDisplay(metadata);
     enableTailorButton();
-    updateStatusMessage('✅', 'Ready to generate cover letters!', 'success');
+    updateStatusMessage(null, 'Ready to generate cover letters!', 'success');
     showMessage('CV uploaded successfully!', 'success');
 
     // Update onboarding progress
@@ -317,7 +317,7 @@ async function handleDeleteCV() {
 
     deleteCvBtn.style.display = 'none';
     disableTailorButton();
-    updateStatusMessage('ℹ️', 'Upload your CV to get started', 'info');
+    updateStatusMessage(null, 'Upload your CV to get started', 'info');
     showMessage('CV deleted successfully', 'success');
 
     // Update onboarding progress
@@ -417,7 +417,7 @@ async function handleTailorClick() {
     await chrome.storage.local.set({ currentJobData: jobData });
 
     // Update status to show job was found
-    updateStatusMessage('✅', `Found: ${jobData.jobTitle} at ${jobData.company || 'Unknown Company'}`, 'success');
+    updateStatusMessage(null, `Found: ${jobData.jobTitle} at ${jobData.company || 'Unknown Company'}`, 'success');
     showMessage('Generating cover letter...', 'info');
 
     // Stage 4: Call OpenAI API to generate cover letter
