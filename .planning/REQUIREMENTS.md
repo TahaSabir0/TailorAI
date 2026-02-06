@@ -24,25 +24,25 @@
 
 ### Visual Design
 
-- [ ] **DSGN-01**: Color scheme uses deep blue/charcoal as primary color
-- [ ] **DSGN-02**: Accent color is teal or soft blue
-- [ ] **DSGN-03**: Background is white or light gray
-- [ ] **DSGN-04**: UI has clear visual hierarchy with primary actions emphasized
-- [ ] **DSGN-05**: Layout uses generous whitespace for readability
-- [ ] **DSGN-06**: Design is clean and professional (Linear meets modern job platform aesthetic)
-- [ ] **DSGN-07**: No emojis anywhere in UI
-- [ ] **DSGN-08**: Typography uses modern sans-serif font
-- [ ] **DSGN-09**: Popup dimensions remain reasonable for browser extension
+- [x] **DSGN-01**: Color scheme uses deep blue/charcoal as primary color
+- [x] **DSGN-02**: Accent color is teal or soft blue
+- [x] **DSGN-03**: Background is white or light gray
+- [x] **DSGN-04**: UI has clear visual hierarchy with primary actions emphasized
+- [x] **DSGN-05**: Layout uses generous whitespace for readability
+- [x] **DSGN-06**: Design is clean and professional (Linear meets modern job platform aesthetic)
+- [x] **DSGN-07**: No emojis anywhere in UI
+- [x] **DSGN-08**: Typography uses modern sans-serif font
+- [x] **DSGN-09**: Popup dimensions remain reasonable for browser extension
 
 ### Icons
 
-- [ ] **ICONS-01**: All emojis replaced with SVG icons
-- [ ] **ICONS-02**: Icons are professional and relevant to function
-- [ ] **ICONS-03**: Icons scale properly at different sizes
-- [ ] **ICONS-04**: Icon for CV upload is clear and meaningful
-- [ ] **ICONS-05**: Icon for API key is clear and meaningful
-- [ ] **ICONS-06**: Icon for settings is clear and accessible
-- [ ] **ICONS-07**: Icons are inline SVG or from extension resources
+- [x] **ICONS-01**: All emojis replaced with SVG icons
+- [x] **ICONS-02**: Icons are professional and relevant to function
+- [x] **ICONS-03**: Icons scale properly at different sizes
+- [x] **ICONS-04**: Icon for CV upload is clear and meaningful
+- [x] **ICONS-05**: Icon for API key is clear and meaningful
+- [x] **ICONS-06**: Icon for settings is clear and accessible
+- [x] **ICONS-07**: Icons are inline SVG or from extension resources
 
 ### Interactions
 
@@ -99,22 +99,22 @@
 | ONBD-04 | Phase 1 | Complete |
 | ONBD-05 | Phase 1 | Complete |
 | ONBD-06 | Phase 1 | Complete |
-| DSGN-01 | Phase 2 | Pending |
-| DSGN-02 | Phase 2 | Pending |
-| DSGN-03 | Phase 2 | Pending |
-| DSGN-04 | Phase 2 | Pending |
-| DSGN-05 | Phase 2 | Pending |
-| DSGN-06 | Phase 2 | Pending |
-| DSGN-07 | Phase 2 | Pending |
-| DSGN-08 | Phase 2 | Pending |
-| DSGN-09 | Phase 2 | Pending |
-| ICONS-01 | Phase 2 | Pending |
-| ICONS-02 | Phase 2 | Pending |
-| ICONS-03 | Phase 2 | Pending |
-| ICONS-04 | Phase 2 | Pending |
-| ICONS-05 | Phase 2 | Pending |
-| ICONS-06 | Phase 2 | Pending |
-| ICONS-07 | Phase 2 | Pending |
+| DSGN-01 | Phase 2 | Complete |
+| DSGN-02 | Phase 2 | Complete |
+| DSGN-03 | Phase 2 | Complete |
+| DSGN-04 | Phase 2 | Complete |
+| DSGN-05 | Phase 2 | Complete |
+| DSGN-06 | Phase 2 | Complete |
+| DSGN-07 | Phase 2 | Complete |
+| DSGN-08 | Phase 2 | Complete |
+| DSGN-09 | Phase 2 | Complete |
+| ICONS-01 | Phase 2 | Complete |
+| ICONS-02 | Phase 2 | Complete |
+| ICONS-03 | Phase 2 | Complete |
+| ICONS-04 | Phase 2 | Complete |
+| ICONS-05 | Phase 2 | Complete |
+| ICONS-06 | Phase 2 | Complete |
+| ICONS-07 | Phase 2 | Complete |
 | INTR-01 | Phase 3 | Pending |
 | INTR-02 | Phase 3 | Pending |
 | INTR-03 | Phase 3 | Pending |
