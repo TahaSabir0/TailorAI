@@ -457,3 +457,83 @@ input[type="password"]:focus {
   background: rgba(0, 0, 0, 0.25);
   background-clip: content-box;
 }
+
+/* Onboarding section styling */
+.onboarding-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.onboarding-progress {
+  background: #f5f5f7;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  letter-spacing: -0.2px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.onboarding-progress.complete {
+  background: #e8f5e9;
+  color: #1b5e20;
+  border-color: #4caf50;
+}
+
+.step-instruction {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 8px;
+  letter-spacing: -0.2px;
+}
+
+.step-number {
+  color: #007aff;
+  font-weight: 700;
+}
+
+/* Settings section styling */
+.settings-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+/* Mode-specific header styling */
+.mode-header,
+.ready-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.mode-header h2,
+.ready-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: -0.4px;
+  margin: 0;
+}
+
+/* Ready section styling */
+.ready-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
