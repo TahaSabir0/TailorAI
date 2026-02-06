@@ -12,13 +12,6 @@
   <div class="container">
     <div class="header">
       <h1>TailorAI</h1>
-      <button id="settingsBtn" class="icon-btn" title="Settings">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3"></path>
-          <path d="M19.071 19.071L15.5 15.5m0-7l3.571-3.571M4.929 4.929L8.5 8.5m0 7l-3.571 3.571"></path>
-        </svg>
-      </button>
     </div>
 
     <div class="status-section" id="statusSection">
@@ -28,42 +21,81 @@
       </div>
     </div>
 
-    <div class="main-section">
-      <button id="tailorBtn" class="tailor-btn" disabled>
-        <span class="btn-text">Tailor</span>
-        <span class="loader" style="display: none;"></span>
-      </button>
-      <p class="hint-text">Click to generate a cover letter for this job posting</p>
-    </div>
+    <!-- Onboarding Section (visible for first-time users) -->
+    <section id="onboardingSection" class="onboarding-section">
+      <div class="onboarding-progress">Setup: 0/2 complete</div>
 
-    <div class="settings-panel" id="settingsPanel" style="display: none;">
-      <div class="settings-header">
+      <div class="setting-group">
+        <p class="step-instruction"><span class="step-number">Step 1:</span> Upload your CV (PDF or DOCX)</p>
+        <div class="cv-status" id="cvStatus">
+          <p class="no-cv-text">No CV uploaded yet</p>
+        </div>
+        <input type="file" id="cvUpload" accept=".pdf,.docx" style="display: none;">
+        <button id="uploadCvBtn" class="secondary-btn">Choose CV File</button>
+      </div>
+
+      <div class="setting-group" style="margin-top: 20px;">
+        <p class="step-instruction"><span class="step-number">Step 2:</span> Add your Gemini API key</p>
+        <input type="password" id="apiKey" placeholder="AIza..." />
+        <button id="saveApiKeyBtn" class="secondary-btn">Save API Key</button>
+        <p class="help-text">
+          Get your free API key from
+          <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- Ready Section (visible for returning users with data) -->
+    <section id="readySection" class="ready-section" style="display: none;">
+      <div class="ready-header">
+        <h2>Ready</h2>
+        <button id="settingsBtn" class="icon-btn" title="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3"></path>
+            <path d="M19.071 19.071L15.5 15.5m0-7l3.571-3.571M4.929 4.929L8.5 8.5m0 7l-3.571 3.571"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="main-section">
+        <button id="tailorBtn" class="tailor-btn">
+          <span class="btn-text">Tailor</span>
+          <span class="loader" style="display: none;"></span>
+        </button>
+        <p class="hint-text">Click to generate a cover letter for this job posting</p>
+      </div>
+    </section>
+
+    <!-- Settings Section (accessible from ready mode) -->
+    <section id="settingsSection" class="settings-section" style="display: none;">
+      <div class="mode-header">
         <h2>Settings</h2>
         <button id="closeSettingsBtn" class="close-btn">×</button>
       </div>
 
       <div class="settings-content">
         <div class="setting-group">
-          <label for="cvUpload">Upload CV</label>
-          <div class="cv-status" id="cvStatus">
+          <label for="cvUpload">Update CV</label>
+          <div class="cv-status" id="cvStatusSettings">
             <p class="no-cv-text">No CV uploaded yet</p>
           </div>
-          <input type="file" id="cvUpload" accept=".pdf,.docx" style="display: none;">
-          <button id="uploadCvBtn" class="secondary-btn">Choose CV File</button>
+          <input type="file" id="cvUploadSettings" accept=".pdf,.docx" style="display: none;">
+          <button id="uploadCvBtnSettings" class="secondary-btn">Choose CV File</button>
           <button id="deleteCvBtn" class="danger-btn" style="display: none;">Delete CV</button>
         </div>
 
         <div class="setting-group">
-          <label for="apiKey">Gemini API Key</label>
-          <input type="password" id="apiKey" placeholder="AIza..." />
-          <button id="saveApiKeyBtn" class="secondary-btn">Save API Key</button>
+          <label for="apiKeySettings">Gemini API Key</label>
+          <input type="password" id="apiKeySettings" placeholder="AIza..." />
+          <button id="saveApiKeyBtnSettings" class="secondary-btn">Save API Key</button>
           <p class="help-text">
             Get your free API key from
             <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a>
           </p>
         </div>
       </div>
-    </div>
+    </section>
 
     <div class="message-section" id="messageSection" style="display: none;">
       <p id="messageText"></p>
