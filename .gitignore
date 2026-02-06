@@ -44,9 +44,9 @@ Thumbs.db
 Desktop.ini
 
 # Personal data (DO NOT commit user data!)
-*.pdf
 cvs/
 user_data/
+.pdf
 
 # Test/debug files
 handshake.HTML

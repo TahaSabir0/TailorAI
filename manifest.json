@@ -3,15 +3,8 @@
   "name": "TailorAI - Cover Letter Generator",
   "version": "1.0.0",
   "description": "Generate personalized cover letters from job postings with one click using AI",
-  "permissions": [
-    "storage",
-    "activeTab",
-    "scripting",
-    "downloads"
-  ],
-  "host_permissions": [
-    "https://*/*"
-  ],
+  "permissions": ["storage", "activeTab", "scripting", "downloads"],
+  "host_permissions": ["https://*/*"],
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
@@ -25,12 +18,8 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "content/content.js"
-      ],
+      "matches": ["<all_urls>"],
+      "js": ["content/content.js"],
       "run_at": "document_idle"
     }
   ],
@@ -44,13 +33,8 @@
   },
   "web_accessible_resources": [
     {
-      "resources": [
-        "libs/*",
-        "cover_letter_template.html"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "resources": ["libs/*", "cover_letter_template.html"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
