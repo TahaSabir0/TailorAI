@@ -99,42 +99,45 @@
 | ONBD-04 | Phase 1 | Pending |
 | ONBD-05 | Phase 1 | Pending |
 | ONBD-06 | Phase 1 | Pending |
-| DSGN-01 | Phase 1 | Pending |
-| DSGN-02 | Phase 1 | Pending |
-| DSGN-03 | Phase 1 | Pending |
-| DSGN-04 | Phase 1 | Pending |
-| DSGN-05 | Phase 1 | Pending |
-| DSGN-06 | Phase 1 | Pending |
-| DSGN-07 | Phase 1 | Pending |
-| DSGN-08 | Phase 1 | Pending |
-| DSGN-09 | Phase 1 | Pending |
-| ICONS-01 | Phase 1 | Pending |
-| ICONS-02 | Phase 1 | Pending |
-| ICONS-03 | Phase 1 | Pending |
-| ICONS-04 | Phase 1 | Pending |
-| ICONS-05 | Phase 1 | Pending |
-| ICONS-06 | Phase 1 | Pending |
-| ICONS-07 | Phase 1 | Pending |
-| INTR-01 | Phase 1 | Pending |
-| INTR-02 | Phase 1 | Pending |
-| INTR-03 | Phase 1 | Pending |
-| INTR-04 | Phase 1 | Pending |
-| INTR-05 | Phase 1 | Pending |
-| ACCS-01 | Phase 1 | Pending |
-| ACCS-02 | Phase 1 | Pending |
-| ACCS-03 | Phase 1 | Pending |
-| ACCS-04 | Phase 1 | Pending |
-| ACCS-05 | Phase 1 | Pending |
-| SETT-01 | Phase 1 | Pending |
-| SETT-02 | Phase 1 | Pending |
-| SETT-03 | Phase 1 | Pending |
-| SETT-04 | Phase 1 | Pending |
-| SETT-05 | Phase 1 | Pending |
+| DSGN-01 | Phase 2 | Pending |
+| DSGN-02 | Phase 2 | Pending |
+| DSGN-03 | Phase 2 | Pending |
+| DSGN-04 | Phase 2 | Pending |
+| DSGN-05 | Phase 2 | Pending |
+| DSGN-06 | Phase 2 | Pending |
+| DSGN-07 | Phase 2 | Pending |
+| DSGN-08 | Phase 2 | Pending |
+| DSGN-09 | Phase 2 | Pending |
+| ICONS-01 | Phase 2 | Pending |
+| ICONS-02 | Phase 2 | Pending |
+| ICONS-03 | Phase 2 | Pending |
+| ICONS-04 | Phase 2 | Pending |
+| ICONS-05 | Phase 2 | Pending |
+| ICONS-06 | Phase 2 | Pending |
+| ICONS-07 | Phase 2 | Pending |
+| INTR-01 | Phase 3 | Pending |
+| INTR-02 | Phase 3 | Pending |
+| INTR-03 | Phase 3 | Pending |
+| INTR-04 | Phase 3 | Pending |
+| INTR-05 | Phase 3 | Pending |
+| ACCS-01 | Phase 3 | Pending |
+| ACCS-02 | Phase 3 | Pending |
+| ACCS-03 | Phase 3 | Pending |
+| ACCS-04 | Phase 3 | Pending |
+| ACCS-05 | Phase 3 | Pending |
+| SETT-01 | Phase 3 | Pending |
+| SETT-02 | Phase 3 | Pending |
+| SETT-03 | Phase 3 | Pending |
+| SETT-04 | Phase 3 | Pending |
+| SETT-05 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 38 total
 - Mapped to phases: 38
 - Unmapped: 0 ✓
+
+---
+*Last updated: 2026-02-06 after roadmap creation*
 
 ---
 *Requirements defined: 2026-02-06*
