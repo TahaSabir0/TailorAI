@@ -28,11 +28,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. After successful setup, UI transitions smoothly to ready mode
   4. Returning user with stored data sees ready mode immediately
   5. User can access settings mode from ready mode and return
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md — Add state detection and three-mode HTML structure (onboarding, ready, settings)
+- [ ] 01-02-PLAN.md — Implement onboarding logic with step tracking and mode-aware event handlers
 
 ### Phase 2: Visual Design System
 **Goal**: Extension presents a professional, trustworthy aesthetic matching the high-stakes job application context
