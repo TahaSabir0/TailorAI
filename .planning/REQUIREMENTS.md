@@ -7,20 +7,20 @@
 
 ### UI State Management
 
-- [ ] **UIST-01**: Extension detects first-time users and displays onboarding mode
-- [ ] **UIST-02**: Extension detects returning users with data and displays ready mode
-- [ ] **UIST-03**: User can access settings mode to update CV or API key
-- [ ] **UIST-04**: UI state transitions smoothly between onboarding, ready, and settings modes
-- [ ] **UIST-05**: Current mode is visually indicated to user (active state highlighting)
+- [x] **UIST-01**: Extension detects first-time users and displays onboarding mode
+- [x] **UIST-02**: Extension detects returning users with data and displays ready mode
+- [x] **UIST-03**: User can access settings mode to update CV or API key
+- [x] **UIST-04**: UI state transitions smoothly between onboarding, ready, and settings modes
+- [x] **UIST-05**: Current mode is visually indicated to user (active state highlighting)
 
 ### Onboarding
 
-- [ ] **ONBD-01**: Onboarding mode displays only CV upload input and API key text box
-- [ ] **ONBD-02**: Onboarding includes progress indicator showing user's setup stage
-- [ ] **ONBD-03**: Clear instructions guide user through CV upload process
-- [ ] **ONBD-04**: Clear instructions guide user through API key entry process
-- [ ] **ONBD-05**: Onboarding completes when both CV and API key are successfully stored
-- [ ] **ONBD-06**: After successful onboarding, UI transitions to ready mode
+- [x] **ONBD-01**: Onboarding mode displays only CV upload input and API key text box
+- [x] **ONBD-02**: Onboarding includes progress indicator showing user's setup stage
+- [x] **ONBD-03**: Clear instructions guide user through CV upload process
+- [x] **ONBD-04**: Clear instructions guide user through API key entry process
+- [x] **ONBD-05**: Onboarding completes when both CV and API key are successfully stored
+- [x] **ONBD-06**: After successful onboarding, UI transitions to ready mode
 
 ### Visual Design
 
@@ -62,11 +62,11 @@
 
 ### Settings
 
-- [ ] **SETT-01**: User can update CV in settings mode
-- [ ] **SETT-02**: User can update API key in settings mode
-- [ ] **SETT-03**: Settings mode is accessible from ready mode
-- [ ] **SETT-04**: Changes in settings mode update chrome.storage.local
-- [ ] **SETT-05**: User can return to ready mode from settings
+- [x] **SETT-01**: User can update CV in settings mode
+- [x] **SETT-02**: User can update API key in settings mode
+- [x] **SETT-03**: Settings mode is accessible from ready mode
+- [x] **SETT-04**: Changes in settings mode update chrome.storage.local
+- [x] **SETT-05**: User can return to ready mode from settings
 
 ## v2 Requirements
 
@@ -88,17 +88,17 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UIST-01 | Phase 1 | Pending |
-| UIST-02 | Phase 1 | Pending |
-| UIST-03 | Phase 1 | Pending |
-| UIST-04 | Phase 1 | Pending |
-| UIST-05 | Phase 1 | Pending |
-| ONBD-01 | Phase 1 | Pending |
-| ONBD-02 | Phase 1 | Pending |
-| ONBD-03 | Phase 1 | Pending |
-| ONBD-04 | Phase 1 | Pending |
-| ONBD-05 | Phase 1 | Pending |
-| ONBD-06 | Phase 1 | Pending |
+| UIST-01 | Phase 1 | Complete |
+| UIST-02 | Phase 1 | Complete |
+| UIST-03 | Phase 1 | Complete |
+| UIST-04 | Phase 1 | Complete |
+| UIST-05 | Phase 1 | Complete |
+| ONBD-01 | Phase 1 | Complete |
+| ONBD-02 | Phase 1 | Complete |
+| ONBD-03 | Phase 1 | Complete |
+| ONBD-04 | Phase 1 | Complete |
+| ONBD-05 | Phase 1 | Complete |
+| ONBD-06 | Phase 1 | Complete |
 | DSGN-01 | Phase 2 | Pending |
 | DSGN-02 | Phase 2 | Pending |
 | DSGN-03 | Phase 2 | Pending |
@@ -125,11 +125,11 @@
 | ACCS-03 | Phase 3 | Pending |
 | ACCS-04 | Phase 3 | Pending |
 | ACCS-05 | Phase 3 | Pending |
-| SETT-01 | Phase 3 | Pending |
-| SETT-02 | Phase 3 | Pending |
-| SETT-03 | Phase 3 | Pending |
-| SETT-04 | Phase 3 | Pending |
-| SETT-05 | Phase 3 | Pending |
+| SETT-01 | Phase 1 | Complete |
+| SETT-02 | Phase 1 | Complete |
+| SETT-03 | Phase 1 | Complete |
+| SETT-04 | Phase 1 | Complete |
+| SETT-05 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 38 total
