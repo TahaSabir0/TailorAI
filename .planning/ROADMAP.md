@@ -44,11 +44,11 @@ Plans:
   3. All icons are professional SVGs (no emojis) and scale properly at different sizes
   4. Icons for CV upload, API key, and settings are clear and meaningful
   5. Overall design feels professional and trustworthy (Linear meets modern job platform aesthetic)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Define CSS variable system and apply design tokens to all components
+- [ ] 02-02-PLAN.md — Replace all emojis with professional SVG icons
 
 ### Phase 3: Interactions, Accessibility & Settings
 **Goal**: Extension provides smooth, accessible interactions and complete settings management
@@ -74,7 +74,7 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. UI State Foundation & Onboarding | 2/2 | Complete | 2026-02-06 |
-| 2. Visual Design System | 0/0 | Not started | - |
+| 2. Visual Design System | 0/2 | Planned | - |
 | 3. Interactions, Accessibility & Settings | 0/0 | Not started | - |
 
 ---
