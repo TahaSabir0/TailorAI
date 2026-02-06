@@ -1,8 +1,15 @@
+// UI Modes
+const MODES = {
+  ONBOARDING: 'onboarding',
+  READY: 'ready',
+  SETTINGS: 'settings'
+};
+let currentMode = null;
+
 // DOM Elements
 const tailorBtn = document.getElementById('tailorBtn');
 const settingsBtn = document.getElementById('settingsBtn');
 const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-const settingsPanel = document.getElementById('settingsPanel');
 const statusText = document.getElementById('statusText');
 const statusIcon = document.querySelector('.status-icon');
 const uploadCvBtn = document.getElementById('uploadCvBtn');
@@ -16,12 +23,93 @@ const messageText = document.getElementById('messageText');
 const btnText = tailorBtn.querySelector('.btn-text');
 const loader = tailorBtn.querySelector('.loader');
 
+// Mode sections
+const onboardingSection = document.getElementById('onboardingSection');
+const readySection = document.getElementById('readySection');
+const settingsSection = document.getElementById('settingsSection');
+const onboardingProgress = document.querySelector('.onboarding-progress');
+
+// Settings section elements
+const uploadCvBtnSettings = document.getElementById('uploadCvBtnSettings');
+const cvUploadInputSettings = document.getElementById('cvUploadSettings');
+const cvStatusSettings = document.getElementById('cvStatusSettings');
+const apiKeyInputSettings = document.getElementById('apiKeySettings');
+const saveApiKeyBtnSettings = document.getElementById('saveApiKeyBtnSettings');
+
 // Initialize popup
 document.addEventListener('DOMContentLoaded', init);
 
+// Detect current mode based on stored data
+async function detectCurrentMode() {
+  const result = await chrome.storage.local.get(['cvMetadata', 'openaiApiKey']);
+  const hasCV = !!result.cvMetadata;
+  const hasApiKey = !!result.openaiApiKey;
+
+  if (!hasCV || !hasApiKey) {
+    return MODES.ONBOARDING;
+  }
+  return MODES.READY;
+}
+
+// Switch UI to specified mode
+function switchMode(mode) {
+  currentMode = mode;
+
+  // Hide all sections
+  onboardingSection.style.display = 'none';
+  readySection.style.display = 'none';
+  settingsSection.style.display = 'none';
+
+  // Show current section
+  switch (mode) {
+    case MODES.ONBOARDING:
+      onboardingSection.style.display = 'block';
+      break;
+    case MODES.READY:
+      readySection.style.display = 'block';
+      updateStatusMessage('✅', 'Ready to generate cover letters!', 'success');
+      break;
+    case MODES.SETTINGS:
+      settingsSection.style.display = 'block';
+      break;
+  }
+}
+
+// Update onboarding progress indicator
+async function updateOnboardingProgress() {
+  const result = await chrome.storage.local.get(['cvMetadata', 'openaiApiKey']);
+  const hasCV = !!result.cvMetadata;
+  const hasApiKey = !!result.openaiApiKey;
+  const progressCount = (hasCV ? 1 : 0) + (hasApiKey ? 1 : 0);
+
+  if (onboardingProgress) {
+    onboardingProgress.textContent = `Setup: ${progressCount}/2 complete`;
+    if (progressCount === 2) {
+      onboardingProgress.classList.add('complete');
+    } else {
+      onboardingProgress.classList.remove('complete');
+    }
+  }
+
+  // Sync CV status display between sections
+  if (result.cvMetadata) {
+    updateCVStatusDisplay(result.cvMetadata);
+    if (cvStatusSettings) {
+      cvStatusSettings.innerHTML = cvStatus.innerHTML;
+    }
+  }
+
+  // Auto-transition to ready mode if both complete
+  if (hasCV && hasApiKey && currentMode === MODES.ONBOARDING) {
+    switchMode(MODES.READY);
+  }
+}
+
 async function init() {
-  await checkCVStatus();
+  const mode = await detectCurrentMode();
+  switchMode(mode);
   await loadApiKey();
+  updateOnboardingProgress();
   setupEventListeners();
 }
 
@@ -29,10 +117,18 @@ async function init() {
 function setupEventListeners() {
   settingsBtn.addEventListener('click', openSettings);
   closeSettingsBtn.addEventListener('click', closeSettings);
+
+  // Onboarding section event listeners
   uploadCvBtn.addEventListener('click', () => cvUploadInput.click());
   cvUploadInput.addEventListener('change', handleCVUpload);
-  deleteCvBtn.addEventListener('click', handleDeleteCV);
   saveApiKeyBtn.addEventListener('click', handleSaveApiKey);
+
+  // Settings section event listeners
+  uploadCvBtnSettings.addEventListener('click', () => cvUploadInputSettings.click());
+  cvUploadInputSettings.addEventListener('change', handleCVUpload);
+  deleteCvBtn.addEventListener('click', handleDeleteCV);
+  saveApiKeyBtnSettings.addEventListener('click', handleSaveApiKey);
+
   tailorBtn.addEventListener('click', handleTailorClick);
 }
 
@@ -87,12 +183,12 @@ function disableTailorButton() {
 
 // Open settings panel
 function openSettings() {
-  settingsPanel.style.display = 'block';
+  switchMode(MODES.SETTINGS);
 }
 
 // Close settings panel
 function closeSettings() {
-  settingsPanel.style.display = 'none';
+  switchMode(MODES.READY);
 }
 
 // Handle CV upload
@@ -120,9 +216,10 @@ async function handleCVUpload(event) {
     // Get API key first - needed for structured extraction
     const storage = await chrome.storage.local.get(['openaiApiKey']);
     if (!storage.openaiApiKey) {
-      showMessage('Please add your Gemini API key in settings first', 'error');
-      openSettings();
+      showMessage('Please enter your API key first (Step 2)', 'info');
+      // Clear both file inputs
       cvUploadInput.value = '';
+      cvUploadInputSettings.value = '';
       return;
     }
 
@@ -157,12 +254,17 @@ async function handleCVUpload(event) {
     updateStatusMessage('✅', 'Ready to generate cover letters!', 'success');
     showMessage('CV uploaded successfully!', 'success');
 
-    // Clear the file input for future uploads
+    // Update onboarding progress
+    await updateOnboardingProgress();
+
+    // Clear the file inputs for future uploads
     cvUploadInput.value = '';
+    cvUploadInputSettings.value = '';
   } catch (error) {
     console.error('Error uploading CV:', error);
     showMessage('Error uploading CV: ' + error.message, 'error');
     cvUploadInput.value = '';
+    cvUploadInputSettings.value = '';
   }
 }
 
@@ -175,11 +277,18 @@ async function handleDeleteCV() {
 
   try {
     await chrome.storage.local.remove(['cvText', 'cvMetadata', 'htmlTemplate']);
+
+    // Update both CV status displays
     cvStatus.innerHTML = '<p class="no-cv-text">No CV uploaded yet</p>';
+    cvStatusSettings.innerHTML = '<p class="no-cv-text">No CV uploaded yet</p>';
+
     deleteCvBtn.style.display = 'none';
     disableTailorButton();
     updateStatusMessage('ℹ️', 'Upload your CV to get started', 'info');
     showMessage('CV deleted successfully', 'success');
+
+    // Update onboarding progress
+    await updateOnboardingProgress();
   } catch (error) {
     console.error('Error deleting CV:', error);
     showMessage('Error deleting CV', 'error');
@@ -191,7 +300,9 @@ async function loadApiKey() {
   try {
     const result = await chrome.storage.local.get(['openaiApiKey']);
     if (result.openaiApiKey) {
+      // Sync both input fields
       apiKeyInput.value = result.openaiApiKey;
+      apiKeyInputSettings.value = result.openaiApiKey;
     }
   } catch (error) {
     console.error('Error loading API key:', error);
@@ -200,7 +311,8 @@ async function loadApiKey() {
 
 // Handle save API key
 async function handleSaveApiKey() {
-  const apiKey = apiKeyInput.value.trim();
+  // Get value from whichever input was used (onboarding or settings)
+  const apiKey = apiKeyInput.value.trim() || apiKeyInputSettings.value.trim();
 
   if (!apiKey) {
     showMessage('Please enter an API key', 'error');
@@ -215,7 +327,15 @@ async function handleSaveApiKey() {
 
   try {
     await chrome.storage.local.set({ openaiApiKey: apiKey });
+
+    // Sync both input fields
+    apiKeyInput.value = apiKey;
+    apiKeyInputSettings.value = apiKey;
+
     showMessage('API key saved successfully', 'success');
+
+    // Update onboarding progress
+    await updateOnboardingProgress();
   } catch (error) {
     console.error('Error saving API key:', error);
     showMessage('Error saving API key', 'error');
