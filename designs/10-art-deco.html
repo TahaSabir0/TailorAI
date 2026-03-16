@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TailorAI - Art Deco</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poiret+One&family=Raleway:wght@300;400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 380px; min-height: 480px; font-family: 'Raleway', sans-serif; font-weight: 400;
+    background: #0b2027; color: #f5edd6; position: relative; overflow: hidden;
+  }
+
+  /* Geometric background pattern */
+  body::before {
+    content: ''; position: absolute; inset: 0; z-index: 0; opacity: 0.04;
+    background:
+      repeating-linear-gradient(45deg, #d4af37 0px, #d4af37 1px, transparent 1px, transparent 30px),
+      repeating-linear-gradient(-45deg, #d4af37 0px, #d4af37 1px, transparent 1px, transparent 30px);
+  }
+
+  .container {
+    position: relative; z-index: 1; padding: 28px 24px 24px;
+  }
+
+  /* Gold corner ornaments */
+  .container::before, .container::after { content: ''; position: absolute; width: 28px; height: 28px; border-color: #d4af37; border-style: solid; }
+  .container::before { top: 10px; left: 10px; border-width: 1.5px 0 0 1.5px; }
+  .container::after { top: 10px; right: 10px; border-width: 1.5px 1.5px 0 0; }
+  .corner-bl, .corner-br { position: absolute; width: 28px; height: 28px; border-color: #d4af37; border-style: solid; z-index: 1; }
+  .corner-bl { bottom: 10px; left: 10px; border-width: 0 0 1.5px 1.5px; }
+  .corner-br { bottom: 10px; right: 10px; border-width: 0 1.5px 1.5px 0; }
+
+  /* Header */
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+
+  .title-wrapper { position: relative; text-align: center; flex: 1; }
+  /* Sunburst behind title */
+  .title-wrapper::before {
+    content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 120px; height: 120px; border-radius: 50%; opacity: 0.07;
+    background: conic-gradient(from 0deg, #d4af37, transparent 10%, transparent 15%, #d4af37 20%, transparent 30%, transparent 35%, #d4af37 40%, transparent 50%, transparent 55%, #d4af37 60%, transparent 70%, transparent 75%, #d4af37 80%, transparent 90%, transparent 95%, #d4af37);
+  }
+  .title {
+    font-family: 'Poiret One', cursive; font-size: 28px; letter-spacing: 8px;
+    text-transform: uppercase; color: #d4af37; position: relative;
+  }
+
+  .settings-btn {
+    width: 36px; height: 36px; border: 1px solid rgba(212,175,55,0.4); border-radius: 2px;
+    background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .settings-btn:hover { border-color: #d4af37; background: rgba(212,175,55,0.08); }
+  .settings-btn svg { width: 18px; height: 18px; fill: #d4af37; }
+  #closeIcon { display: none; }
+
+  /* Gold divider with diamond */
+  .gold-divider {
+    display: flex; align-items: center; gap: 10px; margin: 16px 0;
+  }
+  .gold-divider .line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent); }
+  .gold-divider .diamond { color: #d4af37; font-size: 8px; opacity: 0.7; }
+
+  /* Settings Panel */
+  #settingsPanel {
+    display: none; position: relative; padding: 18px; margin-bottom: 4px;
+    background: rgba(212,175,55,0.04); border: 1px solid rgba(212,175,55,0.2); border-radius: 2px;
+    animation: fadeSlide 0.3s ease;
+  }
+  @keyframes fadeSlide { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Gold corners on settings */
+  #settingsPanel::before, #settingsPanel::after { content: ''; position: absolute; width: 14px; height: 14px; border-color: rgba(212,175,55,0.5); border-style: solid; }
+  #settingsPanel::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+  #settingsPanel::after { top: -1px; right: -1px; border-width: 1px 1px 0 0; }
+
+  .settings-section { margin-bottom: 14px; }
+  .settings-section:last-child { margin-bottom: 0; }
+  .settings-label {
+    font-family: 'Poiret One', cursive; font-size: 12px; text-transform: uppercase;
+    letter-spacing: 4px; color: #d4af37; margin-bottom: 10px;
+  }
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0;
+  }
+  .settings-info { display: flex; flex-direction: column; gap: 2px; }
+  .settings-primary { font-size: 13px; font-weight: 500; color: #f5edd6; }
+  .settings-secondary { font-size: 11px; color: rgba(245,237,214,0.5); }
+  .settings-actions { display: flex; gap: 8px; }
+
+  .deco-btn {
+    font-family: 'Raleway', sans-serif; font-weight: 500; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 2px; padding: 5px 14px;
+    border: 1px solid rgba(212,175,55,0.5); border-radius: 2px;
+    background: transparent; color: #d4af37; cursor: pointer;
+    transition: background 0.25s, color 0.25s;
+  }
+  .deco-btn:hover { background: rgba(212,175,55,0.15); }
+  .deco-btn.danger { border-color: rgba(180,80,80,0.5); color: #c47070; }
+  .deco-btn.danger:hover { background: rgba(180,80,80,0.12); }
+
+  .settings-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(212,175,55,0.25), transparent); margin: 14px 0; }
+
+  /* Tailor Button */
+  #tailorBtn {
+    width: 100%; padding: 14px 24px; font-family: 'Raleway', sans-serif; font-weight: 600;
+    font-size: 14px; text-transform: uppercase; letter-spacing: 5px;
+    color: #0b2027; background: #d4af37; border: none; border-radius: 2px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 4px 20px rgba(212,175,55,0.2);
+  }
+  #tailorBtn:hover:not(:disabled) { background: #c9a432; transform: translateY(-1px); box-shadow: 0 6px 28px rgba(212,175,55,0.3); }
+  #tailorBtn:active:not(:disabled) { transform: translateY(0); }
+  #tailorBtn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+  .loader {
+    display: none; width: 18px; height: 18px; border: 2px solid rgba(11,32,39,0.2);
+    border-radius: 2px; position: relative;
+    animation: decoSpin 1.2s linear infinite;
+  }
+  .loader::before {
+    content: ''; position: absolute; inset: 2px; border: 1.5px solid transparent;
+    border-top-color: #0b2027; border-right-color: #0b2027; border-radius: 1px;
+    animation: decoSpin 0.8s linear infinite reverse;
+  }
+  @keyframes decoSpin { to { transform: rotate(360deg); } }
+
+  /* Hint Text */
+  #hintText {
+    text-align: center; font-size: 12px; color: rgba(245,237,214,0.5);
+    font-weight: 400; letter-spacing: 1px; margin-top: 14px; min-height: 16px;
+  }
+
+  /* Result Card */
+  #resultCard {
+    display: none; margin-top: 4px; padding: 18px; position: relative;
+    background: rgba(212,175,55,0.05); border: 1px solid rgba(212,175,55,0.25);
+    border-left: 3px solid #d4af37; border-radius: 2px;
+    animation: fadeSlide 0.4s ease;
+  }
+
+  .result-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .check-deco {
+    width: 36px; height: 36px; border: 1.5px solid #d4af37; border-radius: 2px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .check-deco svg { width: 18px; height: 18px; fill: #d4af37; }
+  .result-info { flex: 1; }
+  .result-title {
+    font-family: 'Poiret One', cursive; font-size: 18px; color: #f5edd6; letter-spacing: 2px;
+  }
+  .result-company { font-size: 12px; color: rgba(245,237,214,0.5); letter-spacing: 1px; margin-top: 2px; }
+
+  .result-file {
+    font-size: 11px; color: #d4af37; background: rgba(212,175,55,0.06);
+    border: 1px solid rgba(212,175,55,0.15); border-radius: 2px;
+    padding: 8px 12px; margin-bottom: 14px; word-break: break-all;
+    font-weight: 400; letter-spacing: 0.5px;
+  }
+
+  .result-actions { display: flex; gap: 10px; }
+  .result-actions .deco-btn { flex: 1; text-align: center; padding: 8px; font-size: 11px; letter-spacing: 2px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="corner-bl"></div>
+    <div class="corner-br"></div>
+
+    <div class="header">
+      <div class="title-wrapper">
+        <div class="title">TailorAI</div>
+      </div>
+      <button class="settings-btn" id="settingsBtn">
+        <svg id="gearIcon" viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.04 7.04 0 00-1.63-.94l-.36-2.54A.48.48 0 0013.92 2h-3.84a.48.48 0 00-.48.41l-.36 2.54a7.04 7.04 0 00-1.63.94l-2.39-.96a.49.49 0 00-.59.22L2.71 8.47a.49.49 0 00.12.61l2.03 1.58a7.07 7.07 0 000 1.88L2.83 14.1a.49.49 0 00-.12.61l1.92 3.32a.49.49 0 00.59.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54a.48.48 0 00.48.41h3.84a.48.48 0 00.48-.41l.36-2.54a7.04 7.04 0 001.63-.94l2.39.96a.49.49 0 00.59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.56zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>
+        <svg id="closeIcon" viewBox="0 0 24 24"><path d="M18.3 5.71a1 1 0 00-1.41 0L12 10.59 7.11 5.7A1 1 0 005.7 7.11L10.59 12 5.7 16.89a1 1 0 101.41 1.41L12 13.41l4.89 4.89a1 1 0 001.41-1.41L13.41 12l4.89-4.89a1 1 0 000-1.4z"/></svg>
+      </button>
+    </div>
+
+    <div class="gold-divider"><span class="line"></span><span class="diamond">&#9670;</span><span class="line"></span></div>
+
+    <div id="settingsPanel">
+      <div class="settings-section">
+        <div class="settings-label">Resume</div>
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-primary">resume.pdf &middot; Mar 15</span>
+            <span class="settings-secondary">Taha S.</span>
+          </div>
+          <div class="settings-actions">
+            <button class="deco-btn">Replace</button>
+            <button class="deco-btn danger">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="settings-divider"></div>
+      <div class="settings-section">
+        <div class="settings-label">API Key</div>
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-primary">AIza&middot;&middot;&middot;&middot;&middot;&middot;</span>
+          </div>
+          <div class="settings-actions">
+            <button class="deco-btn">Update</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button id="tailorBtn">
+      <span class="btn-text">Tailor</span>
+      <div class="loader"></div>
+    </button>
+
+    <div id="hintText">Generate a cover letter for this job posting</div>
+
+    <div class="gold-divider"><span class="line"></span><span class="diamond">&#9670;</span><span class="line"></span></div>
+
+    <div id="resultCard">
+      <div class="result-top">
+        <div class="check-deco">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+        </div>
+        <div class="result-info">
+          <div class="result-title">Software Engineer</div>
+          <div class="result-company">at Google</div>
+        </div>
+      </div>
+      <div class="result-file">Taha-S-Software-Engineer-CoverLetter.pdf</div>
+      <div class="result-actions">
+        <button class="deco-btn">Copy</button>
+        <button class="deco-btn">Download</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const tailorBtn = document.getElementById('tailorBtn');
+  const resultCard = document.getElementById('resultCard');
+  const hintText = document.getElementById('hintText');
+  const btnText = tailorBtn.querySelector('.btn-text');
+  const loader = tailorBtn.querySelector('.loader');
+  let settingsOpen = false;
+
+  settingsBtn.addEventListener('click', () => {
+    settingsOpen = !settingsOpen;
+    settingsPanel.style.display = settingsOpen ? 'block' : 'none';
+    document.getElementById('gearIcon').style.display = settingsOpen ? 'none' : 'block';
+    document.getElementById('closeIcon').style.display = settingsOpen ? 'block' : 'none';
+  });
+
+  tailorBtn.addEventListener('click', () => {
+    if (tailorBtn.disabled) return;
+    btnText.style.display = 'none';
+    loader.style.display = 'inline-block';
+    tailorBtn.disabled = true;
+    hintText.textContent = 'Extracting job posting...';
+    resultCard.style.display = 'none';
+    setTimeout(() => { hintText.textContent = 'Generating cover letter...'; }, 1200);
+    setTimeout(() => { hintText.textContent = 'Generating PDF...'; }, 2400);
+    setTimeout(() => {
+      btnText.style.display = 'inline-block';
+      loader.style.display = 'none';
+      tailorBtn.disabled = false;
+      resultCard.style.display = 'block';
+      hintText.textContent = 'Generate another cover letter';
+    }, 3500);
+  });
+});
+</script>
+</body>
+</html>

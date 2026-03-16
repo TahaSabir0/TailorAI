@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=380">
+<title>TailorAI - Luxury Noir</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Nunito+Sans:wght@300;400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 380px;
+    min-height: 500px;
+    font-family: 'Nunito Sans', sans-serif;
+    font-weight: 300;
+    background: #1a1a1a;
+    background-image: radial-gradient(rgba(201,168,76,0.04) 1px, transparent 1px);
+    background-size: 16px 16px;
+    color: #e8e4dc;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px 20px;
+  }
+
+  .title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 26px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #c9a84c 0%, #f5e6b8 25%, #c9a84c 50%, #f5e6b8 75%, #c9a84c 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% center; }
+    100% { background-position: -200% center; }
+  }
+
+  .settings-btn {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.3s, background 0.3s;
+    position: relative;
+  }
+  .settings-btn:hover { border-color: #c9a84c; background: rgba(201,168,76,0.08); }
+  .settings-btn svg { width: 16px; height: 16px; }
+
+  .divider {
+    height: 0.5px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.35), transparent);
+    margin: 0 28px;
+  }
+
+  /* Settings Panel */
+  .settings-panel {
+    display: none;
+    padding: 20px 28px;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .settings-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(232,228,220,0.4);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .settings-card {
+    background: #222222;
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    transition: border-color 0.3s;
+  }
+  .settings-card:hover { border-color: rgba(201,168,76,0.5); }
+
+  .settings-card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cv-info .cv-filename { font-size: 13px; font-weight: 400; color: #e8e4dc; }
+  .cv-info .cv-meta { font-size: 11px; color: rgba(232,228,220,0.5); margin-top: 2px; }
+
+  .card-actions { display: flex; gap: 6px; }
+
+  .action-btn {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 3px;
+    background: transparent;
+    color: #c9a84c;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-weight: 600;
+  }
+  .action-btn:hover { background: rgba(201,168,76,0.12); border-color: #c9a84c; }
+  .action-btn.danger { border-color: rgba(180,80,80,0.3); color: #b45050; }
+  .action-btn.danger:hover { background: rgba(180,80,80,0.1); border-color: #b45050; }
+
+  .api-key { font-family: 'Nunito Sans', monospace; font-size: 13px; color: rgba(232,228,220,0.7); letter-spacing: 1px; }
+
+  /* Main Content */
+  .content { padding: 28px 28px 16px; }
+
+  .tailor-btn {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    border: 1px solid #c9a84c;
+    border-radius: 4px;
+    color: #c9a84c;
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .tailor-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #c9a84c;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+    z-index: 0;
+  }
+  .tailor-btn:hover::before { transform: scaleX(1); }
+  .tailor-btn:hover { color: #1a1a1a; }
+  .tailor-btn:hover .btn-text, .tailor-btn:hover .loader { position: relative; z-index: 1; }
+  .tailor-btn .btn-text { position: relative; z-index: 1; }
+  .tailor-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .tailor-btn:disabled::before { transform: scaleX(0); }
+
+  .loader {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(201,168,76,0.2);
+    border-top-color: #c9a84c;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    position: relative;
+    z-index: 1;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hint-text {
+    text-align: center;
+    font-size: 11px;
+    color: rgba(232,228,220,0.4);
+    margin-top: 14px;
+    letter-spacing: 0.5px;
+    transition: opacity 0.3s;
+    min-height: 16px;
+  }
+
+  /* Result Card */
+  .result-card {
+    display: none;
+    margin-top: 20px;
+    background: #222222;
+    border: 1px solid rgba(201,168,76,0.2);
+    border-left: 2px solid #c9a84c;
+    border-radius: 4px;
+    padding: 18px 20px;
+    animation: fadeIn 0.4s ease;
+  }
+  .result-card:hover { border-color: rgba(201,168,76,0.5); border-left-color: #c9a84c; }
+
+  .result-tag {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #c9a84c;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .result-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: #e8e4dc;
+    line-height: 1.2;
+  }
+  .result-company {
+    font-size: 13px;
+    color: rgba(232,228,220,0.5);
+    margin-top: 2px;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+  }
+  .result-filename {
+    font-size: 10px;
+    color: rgba(232,228,220,0.35);
+    margin-top: 10px;
+    letter-spacing: 0.5px;
+    font-family: monospace;
+  }
+
+  .result-divider {
+    height: 0.5px;
+    background: rgba(201,168,76,0.2);
+    margin: 14px 0;
+  }
+
+  .result-actions { display: flex; gap: 8px; }
+  .result-btn {
+    flex: 1;
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 9px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+  }
+  .result-btn.primary {
+    background: #c9a84c;
+    border: 1px solid #c9a84c;
+    color: #1a1a1a;
+  }
+  .result-btn.primary:hover { background: #d4b65e; }
+  .result-btn.secondary {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.3);
+    color: #c9a84c;
+  }
+  .result-btn.secondary:hover { border-color: #c9a84c; background: rgba(201,168,76,0.08); }
+
+  /* Footer */
+  .footer {
+    padding: 20px 28px;
+    text-align: center;
+  }
+  .footer-divider {
+    height: 0.5px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.2), transparent);
+    margin-bottom: 16px;
+  }
+  .footer-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    color: rgba(232,228,220,0.2);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="title">TailorAI</div>
+    <button class="settings-btn" id="settingsBtn">
+      <svg id="gearIcon" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+      <svg id="closeIcon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-label">Resume</div>
+    <div class="settings-card">
+      <div class="settings-card-row">
+        <div class="cv-info">
+          <div class="cv-filename">resume.pdf</div>
+          <div class="cv-meta">Mar 15 &middot; Taha S.</div>
+        </div>
+        <div class="card-actions">
+          <button class="action-btn">Replace</button>
+          <button class="action-btn danger">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-label">API Key</div>
+    <div class="settings-card">
+      <div class="settings-card-row">
+        <span class="api-key">AIza&middot;&middot;&middot;&middot;&middot;&middot;</span>
+        <button class="action-btn">Update</button>
+      </div>
+    </div>
+    <div class="divider" style="margin: 20px 0 0;"></div>
+  </div>
+
+  <div class="content">
+    <button class="tailor-btn" id="tailorBtn">
+      <span class="btn-text">Tailor</span>
+      <span class="loader"></span>
+    </button>
+    <div class="hint-text" id="hintText">Generate a cover letter for this job posting</div>
+
+    <div class="result-card" id="resultCard">
+      <div class="result-tag">Cover Letter Ready</div>
+      <div class="result-title">Software Engineer</div>
+      <div class="result-company">at Google</div>
+      <div class="result-filename">Taha-S-Software-Engineer-CoverLetter.pdf</div>
+      <div class="result-divider"></div>
+      <div class="result-actions">
+        <button class="result-btn secondary">Copy</button>
+        <button class="result-btn primary">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-divider"></div>
+    <div class="footer-text">Crafted with precision</div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const tailorBtn = document.getElementById('tailorBtn');
+  const resultCard = document.getElementById('resultCard');
+  const hintText = document.getElementById('hintText');
+  const btnText = tailorBtn.querySelector('.btn-text');
+  const loader = tailorBtn.querySelector('.loader');
+  let settingsOpen = false;
+
+  settingsBtn.addEventListener('click', () => {
+    settingsOpen = !settingsOpen;
+    settingsPanel.style.display = settingsOpen ? 'block' : 'none';
+    document.getElementById('gearIcon').style.display = settingsOpen ? 'none' : 'block';
+    document.getElementById('closeIcon').style.display = settingsOpen ? 'block' : 'none';
+  });
+
+  tailorBtn.addEventListener('click', () => {
+    if (tailorBtn.disabled) return;
+    btnText.style.display = 'none';
+    loader.style.display = 'inline-block';
+    tailorBtn.disabled = true;
+    hintText.textContent = 'Extracting job posting...';
+    resultCard.style.display = 'none';
+    setTimeout(() => { hintText.textContent = 'Generating cover letter...'; }, 1200);
+    setTimeout(() => { hintText.textContent = 'Generating PDF...'; }, 2400);
+    setTimeout(() => {
+      btnText.style.display = 'inline-block';
+      loader.style.display = 'none';
+      tailorBtn.disabled = false;
+      resultCard.style.display = 'block';
+      hintText.textContent = 'Generate another cover letter';
+    }, 3500);
+  });
+});
+</script>
+</body>
+</html>

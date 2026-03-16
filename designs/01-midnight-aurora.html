@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TailorAI - Midnight Aurora</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 380px;
+    min-height: 200px;
+    background: #0a0e27;
+    font-family: 'DM Sans', sans-serif;
+    color: #f1f5f9;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Aurora gradient */
+  .aurora {
+    position: absolute;
+    top: -30px;
+    left: -20%;
+    width: 140%;
+    height: 120px;
+    background: linear-gradient(135deg, #00d4aa 0%, #7b61ff 40%, #3b82f6 70%, #00d4aa 100%);
+    background-size: 300% 300%;
+    animation: auroraShift 20s ease infinite;
+    filter: blur(40px);
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes auroraShift {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 100% 25%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 0% 75%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Star dots */
+  .stars {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .stars::before, .stars::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+  }
+  .stars::before {
+    width: 2px; height: 2px; top: 28px; left: 60px;
+    box-shadow: 180px 12px 0 0 rgba(255,255,255,0.35),
+                300px 45px 0 0 rgba(255,255,255,0.25),
+                95px 55px 0 0.5px rgba(255,255,255,0.4);
+  }
+  .stars::after {
+    width: 1.5px; height: 1.5px; top: 70px; left: 240px;
+    box-shadow: -100px 20px 0 0.5px rgba(255,255,255,0.3),
+                50px -30px 0 0 rgba(255,255,255,0.2);
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    padding: 20px 18px 18px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, #00d4aa, #7b61ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  #settingsBtn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    color: rgba(255,255,255,0.6);
+  }
+  #settingsBtn:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.2);
+    color: #f1f5f9;
+  }
+  #settingsBtn svg { width: 18px; height: 18px; }
+  #closeIcon { display: none; }
+
+  /* Settings panel */
+  #settingsPanel {
+    display: none;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    animation: panelIn 0.25s ease;
+  }
+  @keyframes panelIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .settings-section { margin-bottom: 14px; }
+  .settings-section:last-child { margin-bottom: 0; }
+  .settings-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 8px;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .settings-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .settings-primary {
+    font-size: 13px;
+    font-weight: 500;
+    color: #f1f5f9;
+  }
+  .settings-secondary {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+  }
+  .settings-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .btn-sm {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 7px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-sm:hover {
+    background: rgba(255,255,255,0.1);
+    color: #f1f5f9;
+  }
+  .btn-sm.danger:hover {
+    background: rgba(239,68,68,0.15);
+    border-color: rgba(239,68,68,0.3);
+    color: #f87171;
+  }
+
+  .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+    margin: 12px 0;
+  }
+
+  /* Tailor button */
+  #tailorBtn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #00d4aa, #7b61ff);
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.15s, box-shadow 0.3s;
+    box-shadow: 0 4px 24px rgba(0,212,170,0.2), 0 2px 8px rgba(123,97,255,0.15);
+  }
+  #tailorBtn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 32px rgba(0,212,170,0.35), 0 4px 12px rgba(123,97,255,0.25);
+  }
+  #tailorBtn:active:not(:disabled) { transform: translateY(0); }
+  #tailorBtn:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+  }
+
+  /* Loader */
+  .loader {
+    display: none;
+    width: 20px; height: 20px;
+    border: 2.5px solid rgba(255,255,255,0.25);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Hint text */
+  #hintText {
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 12px;
+    min-height: 16px;
+    transition: color 0.2s;
+  }
+
+  /* Result card */
+  #resultCard {
+    display: none;
+    background: rgba(0,212,170,0.08);
+    border: 1px solid rgba(0,212,170,0.18);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 14px;
+    animation: panelIn 0.3s ease;
+  }
+  .result-job {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: #f1f5f9;
+  }
+  .result-company {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+  }
+  .result-file {
+    font-size: 11px;
+    color: rgba(0,212,170,0.7);
+    margin-top: 8px;
+    font-family: 'DM Sans', monospace;
+    word-break: break-all;
+  }
+  .result-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .btn-result {
+    flex: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 9px 0;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-result.copy {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.8);
+  }
+  .btn-result.copy:hover {
+    background: rgba(255,255,255,0.12);
+    color: #f1f5f9;
+  }
+  .btn-result.download {
+    background: linear-gradient(135deg, #00d4aa, #00b894);
+    color: #fff;
+  }
+  .btn-result.download:hover {
+    box-shadow: 0 2px 12px rgba(0,212,170,0.3);
+  }
+</style>
+</head>
+<body>
+  <div class="aurora"></div>
+  <div class="stars"></div>
+
+  <div class="container">
+    <div class="header">
+      <h1>TailorAI</h1>
+      <button id="settingsBtn" aria-label="Settings">
+        <svg id="gearIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <svg id="closeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="settingsPanel">
+      <div class="settings-section">
+        <div class="settings-label">Resume</div>
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-primary">resume.pdf &middot; Mar 15</span>
+            <span class="settings-secondary">Taha S.</span>
+          </div>
+          <div class="settings-actions">
+            <button class="btn-sm">Replace</button>
+            <button class="btn-sm danger">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="settings-section">
+        <div class="settings-label">API Key</div>
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-primary">AIza&middot;&middot;&middot;&middot;&middot;&middot;</span>
+          </div>
+          <div class="settings-actions">
+            <button class="btn-sm">Update</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button id="tailorBtn">
+      <span class="btn-text">Tailor Cover Letter</span>
+      <span class="loader"></span>
+    </button>
+
+    <div id="hintText">Generate a cover letter for this job posting</div>
+
+    <div id="resultCard">
+      <div class="result-job">Software Engineer</div>
+      <div class="result-company">at Google</div>
+      <div class="result-file">Taha-S-Software-Engineer-CoverLetter.pdf</div>
+      <div class="result-actions">
+        <button class="btn-result copy">Copy Text</button>
+        <button class="btn-result download">Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const tailorBtn = document.getElementById('tailorBtn');
+  const resultCard = document.getElementById('resultCard');
+  const hintText = document.getElementById('hintText');
+  const btnText = tailorBtn.querySelector('.btn-text');
+  const loader = tailorBtn.querySelector('.loader');
+  let settingsOpen = false;
+
+  settingsBtn.addEventListener('click', () => {
+    settingsOpen = !settingsOpen;
+    settingsPanel.style.display = settingsOpen ? 'block' : 'none';
+    document.getElementById('gearIcon').style.display = settingsOpen ? 'none' : 'block';
+    document.getElementById('closeIcon').style.display = settingsOpen ? 'block' : 'none';
+  });
+
+  tailorBtn.addEventListener('click', () => {
+    if (tailorBtn.disabled) return;
+    btnText.style.display = 'none';
+    loader.style.display = 'inline-block';
+    tailorBtn.disabled = true;
+    hintText.textContent = 'Extracting job posting...';
+    resultCard.style.display = 'none';
+    setTimeout(() => { hintText.textContent = 'Generating cover letter...'; }, 1200);
+    setTimeout(() => { hintText.textContent = 'Generating PDF...'; }, 2400);
+    setTimeout(() => {
+      btnText.style.display = 'inline-block';
+      loader.style.display = 'none';
+      tailorBtn.disabled = false;
+      resultCard.style.display = 'block';
+      hintText.textContent = 'Generate another cover letter';
+    }, 3500);
+  });
+});
+</script>
+</body>
+</html>

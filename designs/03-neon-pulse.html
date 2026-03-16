@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TailorAI - Neon Pulse</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 380px;
+    min-height: 480px;
+    background: #0a0a0a;
+    font-family: 'JetBrains Mono', monospace;
+    color: #00f0ff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .container { padding: 20px; position: relative; z-index: 1; }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0,240,255,0.15);
+  }
+
+  .title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    animation: flicker 0.15s infinite alternate;
+    text-shadow: 0 0 10px rgba(0,240,255,0.6), 0 0 30px rgba(0,240,255,0.3);
+  }
+
+  @keyframes flicker {
+    from { opacity: 0.97; }
+    to { opacity: 1.0; }
+  }
+
+  .settings-btn {
+    background: none;
+    border: 1px solid rgba(0,240,255,0.3);
+    border-radius: 2px;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: #00f0ff;
+  }
+
+  .settings-btn:hover {
+    box-shadow: 0 0 10px rgba(0,240,255,0.5), 0 0 20px rgba(0,240,255,0.3);
+    border-color: #00f0ff;
+  }
+
+  .settings-btn svg { width: 18px; height: 18px; }
+
+  #closeIcon { display: none; }
+
+  /* Settings Panel */
+  .settings-panel {
+    display: none;
+    background: rgba(0,240,255,0.05);
+    border: 1px solid rgba(0,240,255,0.2);
+    border-radius: 2px;
+    padding: 16px;
+    margin-bottom: 20px;
+    animation: panelGlow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes panelGlow {
+    from { box-shadow: 0 0 5px rgba(0,240,255,0.1); }
+    to { box-shadow: 0 0 15px rgba(0,240,255,0.15); }
+  }
+
+  .setting-group {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(0,240,255,0.1);
+  }
+
+  .setting-group:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+  .setting-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(0,240,255,0.5);
+    margin-bottom: 8px;
+  }
+
+  .setting-value {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .setting-info { display: flex; flex-direction: column; gap: 2px; }
+
+  .setting-primary {
+    font-size: 12px;
+    color: #00f0ff;
+    font-weight: 500;
+  }
+
+  .setting-secondary {
+    font-size: 10px;
+    color: #ff2d95;
+  }
+
+  .setting-actions { display: flex; gap: 6px; }
+
+  .action-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    background: transparent;
+    border: 1px solid rgba(255,45,149,0.4);
+    border-radius: 2px;
+    color: #ff2d95;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .action-btn:hover {
+    background: rgba(255,45,149,0.15);
+    box-shadow: 0 0 10px rgba(255,45,149,0.3);
+    border-color: #ff2d95;
+  }
+
+  .action-btn.primary-action {
+    border-color: rgba(0,240,255,0.4);
+    color: #00f0ff;
+  }
+
+  .action-btn.primary-action:hover {
+    background: rgba(0,240,255,0.15);
+    box-shadow: 0 0 10px rgba(0,240,255,0.3);
+    border-color: #00f0ff;
+  }
+
+  /* Tailor Button */
+  .tailor-btn {
+    width: 100%;
+    padding: 14px;
+    background: #0a0a0a;
+    border: 2px solid #00f0ff;
+    border-radius: 2px;
+    color: #00f0ff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(0,240,255,0.3), 0 0 15px rgba(0,240,255,0.15); }
+    50% { box-shadow: 0 0 15px rgba(0,240,255,0.6), 0 0 30px rgba(0,240,255,0.3), 0 0 45px rgba(0,240,255,0.15); }
+  }
+
+  .tailor-btn:hover:not(:disabled) {
+    background: #00f0ff;
+    color: #0a0a0a;
+    text-shadow: none;
+  }
+
+  .tailor-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+    animation: none;
+    border-color: rgba(0,240,255,0.5);
+  }
+
+  .loader {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid transparent;
+    border-top: 2px solid #00f0ff;
+    border-right: 2px solid #00f0ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+  }
+
+  .tailor-btn:disabled .loader { border-top-color: #00f0ff; border-right-color: #00f0ff; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Hint Text */
+  .hint-text {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: rgba(0,240,255,0.5);
+    margin-top: 12px;
+  }
+
+  /* Result Card */
+  .result-card {
+    display: none;
+    margin-top: 20px;
+    background: rgba(255,45,149,0.05);
+    border: 1px solid rgba(255,45,149,0.3);
+    border-radius: 2px;
+    padding: 16px;
+    animation: pinkGlow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes pinkGlow {
+    from { box-shadow: 0 0 5px rgba(255,45,149,0.1); }
+    to { box-shadow: 0 0 20px rgba(255,45,149,0.2); }
+  }
+
+  .result-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,45,149,0.6);
+    margin-bottom: 10px;
+  }
+
+  .result-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ff2d95;
+    margin-bottom: 2px;
+  }
+
+  .result-company {
+    font-size: 11px;
+    color: rgba(0,240,255,0.6);
+    margin-bottom: 10px;
+  }
+
+  .result-file {
+    font-size: 9px;
+    color: rgba(0,240,255,0.4);
+    padding: 8px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(0,240,255,0.1);
+    border-radius: 2px;
+    margin-bottom: 14px;
+    word-break: break-all;
+  }
+
+  .result-actions { display: flex; gap: 8px; }
+
+  .result-btn {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .result-btn.copy-btn {
+    background: transparent;
+    border: 1px solid rgba(0,240,255,0.4);
+    color: #00f0ff;
+  }
+
+  .result-btn.copy-btn:hover {
+    background: rgba(0,240,255,0.15);
+    box-shadow: 0 0 10px rgba(0,240,255,0.3);
+  }
+
+  .result-btn.download-btn {
+    background: rgba(255,45,149,0.15);
+    border: 1px solid rgba(255,45,149,0.5);
+    color: #ff2d95;
+  }
+
+  .result-btn.download-btn:hover {
+    background: rgba(255,45,149,0.3);
+    box-shadow: 0 0 10px rgba(255,45,149,0.4);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title">TailorAI</div>
+      <button class="settings-btn" id="settingsBtn">
+        <svg id="gearIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <svg id="closeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+      <div class="setting-group">
+        <div class="setting-label">Resume</div>
+        <div class="setting-value">
+          <div class="setting-info">
+            <span class="setting-primary">resume.pdf &middot; Mar 15</span>
+            <span class="setting-secondary">Taha S.</span>
+          </div>
+          <div class="setting-actions">
+            <button class="action-btn primary-action">Replace</button>
+            <button class="action-btn">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">API Key</div>
+        <div class="setting-value">
+          <div class="setting-info">
+            <span class="setting-primary">AIza&middot;&middot;&middot;&middot;&middot;&middot;</span>
+          </div>
+          <div class="setting-actions">
+            <button class="action-btn primary-action">Update</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="tailor-btn" id="tailorBtn">
+      <span class="btn-text">Tailor</span>
+      <div class="loader"></div>
+    </button>
+
+    <div class="hint-text" id="hintText">Generate a cover letter for this job posting</div>
+
+    <div class="result-card" id="resultCard">
+      <div class="result-label">Generated</div>
+      <div class="result-title">Software Engineer</div>
+      <div class="result-company">at Google</div>
+      <div class="result-file">Taha-S-Software-Engineer-CoverLetter.pdf</div>
+      <div class="result-actions">
+        <button class="result-btn copy-btn">Copy</button>
+        <button class="result-btn download-btn">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const settingsBtn = document.getElementById('settingsBtn');
+      const settingsPanel = document.getElementById('settingsPanel');
+      const tailorBtn = document.getElementById('tailorBtn');
+      const resultCard = document.getElementById('resultCard');
+      const hintText = document.getElementById('hintText');
+      const btnText = tailorBtn.querySelector('.btn-text');
+      const loader = tailorBtn.querySelector('.loader');
+      let settingsOpen = false;
+
+      settingsBtn.addEventListener('click', () => {
+        settingsOpen = !settingsOpen;
+        settingsPanel.style.display = settingsOpen ? 'block' : 'none';
+        document.getElementById('gearIcon').style.display = settingsOpen ? 'none' : 'block';
+        document.getElementById('closeIcon').style.display = settingsOpen ? 'block' : 'none';
+      });
+
+      tailorBtn.addEventListener('click', () => {
+        if (tailorBtn.disabled) return;
+        btnText.style.display = 'none';
+        loader.style.display = 'inline-block';
+        tailorBtn.disabled = true;
+        hintText.textContent = 'Extracting job posting...';
+        resultCard.style.display = 'none';
+        setTimeout(() => { hintText.textContent = 'Generating cover letter...'; }, 1200);
+        setTimeout(() => { hintText.textContent = 'Generating PDF...'; }, 2400);
+        setTimeout(() => {
+          btnText.style.display = 'inline-block';
+          loader.style.display = 'none';
+          tailorBtn.disabled = false;
+          resultCard.style.display = 'block';
+          hintText.textContent = 'Generate another cover letter';
+        }, 3500);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TailorAI - Paper & Ink</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500;1,700&family=Source+Serif+4:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 380px;
+    min-height: 200px;
+    background: #faf6f1;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,0.015) 1px, transparent 1px),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,0.012) 1px, transparent 1px),
+      radial-gradient(circle at 50% 50%, rgba(0,0,0,0.01) 0.5px, transparent 0.5px);
+    background-size: 24px 24px, 32px 32px, 16px 16px;
+    font-family: 'Source Serif 4', Georgia, serif;
+    color: #2a2420;
+    overflow-x: hidden;
+  }
+
+  .container {
+    padding: 24px 22px 20px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e8e0d4;
+    margin-bottom: 20px;
+  }
+  .title-group {
+    display: flex;
+    flex-direction: column;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 26px;
+    color: #2a2420;
+    line-height: 1;
+    letter-spacing: -0.5px;
+    position: relative;
+    display: inline-block;
+  }
+  .header h1::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #c23d2e;
+  }
+  .header-sub {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #7a7068;
+    margin-top: 6px;
+  }
+
+  #settingsBtn {
+    background: none;
+    border: 1px solid #e8e0d4;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: #7a7068;
+    transition: all 0.15s;
+  }
+  #settingsBtn:hover {
+    border-color: #c23d2e;
+    color: #c23d2e;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+  #settingsBtn svg { width: 16px; height: 16px; }
+  #closeIcon { display: none; }
+
+  /* Settings panel */
+  #settingsPanel {
+    display: none;
+    background: #fff;
+    border: 1px solid #e8e0d4;
+    border-top: 2px dashed #d4ccc0;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    animation: fadeDown 0.2s ease;
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .settings-section { margin-bottom: 14px; }
+  .settings-section:last-child { margin-bottom: 0; }
+  .settings-label {
+    font-family: 'Source Serif 4', serif;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #a89e94;
+    margin-bottom: 8px;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .settings-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .settings-primary {
+    font-size: 13px;
+    font-weight: 500;
+    color: #2a2420;
+  }
+  .settings-secondary {
+    font-size: 11.5px;
+    color: #7a7068;
+  }
+  .settings-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .btn-sm {
+    font-family: 'Source Serif 4', serif;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 11px;
+    border: 1px solid #e8e0d4;
+    background: #faf6f1;
+    color: #7a7068;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+  }
+  .btn-sm:hover {
+    border-color: #2a2420;
+    color: #2a2420;
+    transform: translateY(-1px);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .btn-sm.danger:hover {
+    border-color: #c23d2e;
+    color: #c23d2e;
+  }
+
+  .settings-divider {
+    height: 1px;
+    background: #e8e0d4;
+    margin: 12px 0;
+  }
+
+  /* Tailor button */
+  #tailorBtn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    background: #c23d2e;
+    color: #fff;
+    font-family: 'Source Serif 4', serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 2px 8px rgba(194,61,46,0.15);
+  }
+  #tailorBtn:hover:not(:disabled) {
+    background: #a83226;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(194,61,46,0.25);
+  }
+  #tailorBtn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(194,61,46,0.15);
+  }
+  #tailorBtn:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+  }
+
+  /* Loader */
+  .loader {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.65s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Hint text */
+  #hintText {
+    text-align: center;
+    font-size: 12px;
+    font-style: italic;
+    color: #7a7068;
+    margin-top: 14px;
+    min-height: 16px;
+  }
+
+  /* Thin rule above hint */
+  .hint-rule {
+    width: 40px;
+    height: 1px;
+    background: #e8e0d4;
+    margin: 14px auto 0;
+  }
+
+  /* Result card */
+  #resultCard {
+    display: none;
+    background: #fff;
+    border: 1px solid #e8e0d4;
+    border-left: 3px solid #c23d2e;
+    padding: 16px 18px;
+    margin-top: 16px;
+    animation: fadeDown 0.25s ease;
+  }
+  .result-header {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .result-job {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #2a2420;
+    line-height: 1.2;
+  }
+  .result-company {
+    font-size: 13px;
+    font-style: italic;
+    color: #7a7068;
+  }
+  .result-file {
+    font-size: 11px;
+    color: #a89e94;
+    margin-top: 8px;
+    word-break: break-all;
+    font-family: 'Source Serif 4', monospace;
+    letter-spacing: 0.2px;
+  }
+  .result-rule {
+    height: 1px;
+    background: #e8e0d4;
+    margin: 12px 0;
+  }
+  .result-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .btn-result {
+    flex: 1;
+    font-family: 'Source Serif 4', serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 9px 0;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-result.copy {
+    background: #faf6f1;
+    border: 1px solid #e8e0d4;
+    color: #7a7068;
+  }
+  .btn-result.copy:hover {
+    border-color: #2a2420;
+    color: #2a2420;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+  .btn-result.download {
+    background: #c23d2e;
+    border: 1px solid #c23d2e;
+    color: #fff;
+  }
+  .btn-result.download:hover {
+    background: #a83226;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 10px rgba(194,61,46,0.2);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title-group">
+        <h1>TailorAI</h1>
+        <span class="header-sub">Cover Letter Studio</span>
+      </div>
+      <button id="settingsBtn" aria-label="Settings">
+        <svg id="gearIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <svg id="closeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="settingsPanel">
+      <div class="settings-section">
+        <div class="settings-label">Resume</div>
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-primary">resume.pdf &middot; Mar 15</span>
+            <span class="settings-secondary">Taha S.</span>
+          </div>
+          <div class="settings-actions">
+            <button class="btn-sm">Replace</button>
+            <button class="btn-sm danger">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="settings-divider"></div>
+      <div class="settings-section">
+        <div class="settings-label">API Key</div>
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-primary">AIza&middot;&middot;&middot;&middot;&middot;&middot;</span>
+          </div>
+          <div class="settings-actions">
+            <button class="btn-sm">Update</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button id="tailorBtn">
+      <span class="btn-text">Tailor Cover Letter</span>
+      <span class="loader"></span>
+    </button>
+
+    <div class="hint-rule"></div>
+    <div id="hintText">Generate a cover letter for this job posting</div>
+
+    <div id="resultCard">
+      <div class="result-header">
+        <span class="result-job">Software Engineer</span>
+        <span class="result-company">at Google</span>
+      </div>
+      <div class="result-file">Taha-S-Software-Engineer-CoverLetter.pdf</div>
+      <div class="result-rule"></div>
+      <div class="result-actions">
+        <button class="btn-result copy">Copy Text</button>
+        <button class="btn-result download">Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const tailorBtn = document.getElementById('tailorBtn');
+  const resultCard = document.getElementById('resultCard');
+  const hintText = document.getElementById('hintText');
+  const btnText = tailorBtn.querySelector('.btn-text');
+  const loader = tailorBtn.querySelector('.loader');
+  let settingsOpen = false;
+
+  settingsBtn.addEventListener('click', () => {
+    settingsOpen = !settingsOpen;
+    settingsPanel.style.display = settingsOpen ? 'block' : 'none';
+    document.getElementById('gearIcon').style.display = settingsOpen ? 'none' : 'block';
+    document.getElementById('closeIcon').style.display = settingsOpen ? 'block' : 'none';
+  });
+
+  tailorBtn.addEventListener('click', () => {
+    if (tailorBtn.disabled) return;
+    btnText.style.display = 'none';
+    loader.style.display = 'inline-block';
+    tailorBtn.disabled = true;
+    hintText.textContent = 'Extracting job posting...';
+    resultCard.style.display = 'none';
+    setTimeout(() => { hintText.textContent = 'Generating cover letter...'; }, 1200);
+    setTimeout(() => { hintText.textContent = 'Generating PDF...'; }, 2400);
+    setTimeout(() => {
+      btnText.style.display = 'inline-block';
+      loader.style.display = 'none';
+      tailorBtn.disabled = false;
+      resultCard.style.display = 'block';
+      hintText.textContent = 'Generate another cover letter';
+    }, 3500);
+  });
+});
+</script>
+</body>
+</html>

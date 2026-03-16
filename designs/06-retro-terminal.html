@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TailorAI - Retro Terminal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0; }
+
+  body {
+    width: 380px;
+    font-family: 'VT323', monospace;
+    background: #0d1117;
+    color: #00ff41;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* CRT Scanlines */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 65, 0.03) 2px,
+      rgba(0, 255, 65, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* CRT Screen Curvature */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 60%,
+      rgba(0, 0, 0, 0.35) 100%
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .popup {
+    width: 380px;
+    min-height: 200px;
+    padding: 2px;
+    position: relative;
+  }
+
+  /* Phosphor glow mixin */
+  .glow {
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.5), 0 0 10px rgba(0, 255, 65, 0.2);
+  }
+
+  .dim {
+    color: rgba(0, 255, 65, 0.5);
+    text-shadow: 0 0 3px rgba(0, 255, 65, 0.15);
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 10px;
+    border-bottom: 1px dashed rgba(0, 255, 65, 0.3);
+  }
+
+  .title {
+    font-size: 28px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px rgba(0, 255, 65, 0.6), 0 0 20px rgba(0, 255, 65, 0.2);
+  }
+
+  .cursor {
+    animation: blink 1s steps(1) infinite;
+  }
+
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  .settings-btn {
+    background: transparent;
+    border: 1px solid rgba(0, 255, 65, 0.4);
+    color: #00ff41;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 2px 8px;
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+    line-height: 1.2;
+  }
+
+  .settings-btn:hover {
+    background: #00ff41;
+    color: #0d1117;
+    text-shadow: none;
+  }
+
+  #closeIcon { display: none; }
+
+  /* SETTINGS PANEL */
+  .settings-panel {
+    display: none;
+    padding: 0 16px 12px;
+    border-bottom: 1px dashed rgba(0, 255, 65, 0.3);
+  }
+
+  .config-header {
+    font-size: 20px;
+    letter-spacing: 4px;
+    padding: 12px 0 8px;
+    color: rgba(0, 255, 65, 0.5);
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.2);
+  }
+
+  .config-row {
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(0, 255, 65, 0.15);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .config-row:last-child { border-bottom: none; }
+
+  .config-label {
+    font-size: 16px;
+    color: rgba(0, 255, 65, 0.45);
+    letter-spacing: 2px;
+  }
+
+  .config-value {
+    font-size: 20px;
+    color: #00ff41;
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+  }
+
+  .config-sub {
+    font-size: 18px;
+    color: rgba(0, 255, 65, 0.5);
+  }
+
+  .config-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .cfg-btn {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    background: transparent;
+    border: 1px solid rgba(0, 255, 65, 0.4);
+    color: #00ff41;
+    padding: 2px 10px;
+    cursor: pointer;
+    text-shadow: 0 0 3px rgba(0, 255, 65, 0.3);
+    letter-spacing: 1px;
+  }
+
+  .cfg-btn:hover {
+    background: #00ff41;
+    color: #0d1117;
+    text-shadow: none;
+  }
+
+  .cfg-btn.danger {
+    border-color: rgba(255, 60, 60, 0.5);
+    color: #ff3c3c;
+    text-shadow: 0 0 3px rgba(255, 60, 60, 0.3);
+  }
+
+  .cfg-btn.danger:hover {
+    background: #ff3c3c;
+    color: #0d1117;
+  }
+
+  /* MAIN */
+  .main {
+    padding: 16px;
+  }
+
+  /* TAILOR BUTTON */
+  .tailor-btn {
+    width: 100%;
+    padding: 12px 16px;
+    background: transparent;
+    color: #00ff41;
+    border: 1px solid #00ff41;
+    font-family: 'VT323', monospace;
+    font-size: 24px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.5), 0 0 10px rgba(0, 255, 65, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.05s, color 0.05s;
+  }
+
+  .tailor-btn:hover:not(:disabled) {
+    background: #00ff41;
+    color: #0d1117;
+    text-shadow: none;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.3), 0 0 30px rgba(0, 255, 65, 0.1);
+  }
+
+  .tailor-btn:disabled {
+    cursor: wait;
+    border-color: rgba(0, 255, 65, 0.4);
+    color: rgba(0, 255, 65, 0.6);
+  }
+
+  .btn-text::before { content: '> '; }
+
+  .loader {
+    display: none;
+    font-size: 24px;
+    animation: spin-chars 0.4s steps(4) infinite;
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+    width: 16px;
+    text-align: center;
+  }
+
+  @keyframes spin-chars {
+    0%   { content: '|'; }
+    25%  { content: '/'; }
+    50%  { content: '-'; }
+    75%  { content: '\\'; }
+  }
+
+  /* Loader uses JS to cycle characters since content on non-pseudo is tricky */
+
+  /* HINT TEXT */
+  .hint {
+    margin-top: 12px;
+    font-size: 18px;
+    text-align: center;
+    color: rgba(0, 255, 65, 0.5);
+    text-shadow: 0 0 3px rgba(0, 255, 65, 0.15);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .hint.typing {
+    animation: typing 2s steps(45) 1 forwards;
+    width: 0;
+    display: inline-block;
+  }
+
+  .hint-wrap {
+    text-align: center;
+  }
+
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  /* RESULT CARD */
+  .result-card {
+    display: none;
+    margin-top: 14px;
+    border: 1px dashed rgba(0, 255, 65, 0.4);
+    padding: 14px 16px;
+  }
+
+  .result-status {
+    font-size: 20px;
+    color: #00ff41;
+    text-shadow: 0 0 8px rgba(0, 255, 65, 0.6), 0 0 20px rgba(0, 255, 65, 0.2);
+    margin-bottom: 6px;
+  }
+
+  .result-title {
+    font-size: 26px;
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+    letter-spacing: 1px;
+  }
+
+  .result-company {
+    font-size: 20px;
+    color: rgba(0, 255, 65, 0.6);
+    text-shadow: 0 0 3px rgba(0, 255, 65, 0.2);
+  }
+
+  .result-divider {
+    border: none;
+    border-top: 1px dashed rgba(0, 255, 65, 0.25);
+    margin: 10px 0;
+  }
+
+  .result-file {
+    font-size: 16px;
+    color: rgba(0, 255, 65, 0.5);
+    word-break: break-all;
+    letter-spacing: 0.5px;
+  }
+
+  .result-file::before { content: '> '; color: rgba(0,255,65,0.3); }
+
+  .result-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .result-btn {
+    flex: 1;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    background: transparent;
+    border: 1px solid rgba(0, 255, 65, 0.4);
+    color: #00ff41;
+    padding: 6px;
+    cursor: pointer;
+    text-align: center;
+    text-shadow: 0 0 3px rgba(0, 255, 65, 0.3);
+    letter-spacing: 2px;
+  }
+
+  .result-btn:hover {
+    background: #00ff41;
+    color: #0d1117;
+    text-shadow: none;
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+  }
+
+  /* FOOTER */
+  .footer {
+    padding: 8px 16px 12px;
+    text-align: center;
+    font-size: 14px;
+    color: rgba(0, 255, 65, 0.2);
+    letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="popup">
+  <div class="header">
+    <div class="title glow">$ TailorAI<span class="cursor">_</span></div>
+    <button class="settings-btn" id="settingsBtn">
+      <span id="gearIcon">[ ]</span>
+      <span id="closeIcon">[x]</span>
+    </button>
+  </div>
+
+  <div class="settings-panel" id="settingsPanel">
+    <div class="config-header">-- CONFIG --</div>
+    <div class="config-row">
+      <div>
+        <div class="config-label">RESUME:</div>
+        <div class="config-value">resume.pdf &middot; Mar 15</div>
+        <div class="config-sub">Taha S.</div>
+      </div>
+      <div class="config-actions">
+        <button class="cfg-btn">REPLACE</button>
+        <button class="cfg-btn danger">DELETE</button>
+      </div>
+    </div>
+    <div class="config-row">
+      <div>
+        <div class="config-label">API_KEY:</div>
+        <div class="config-value">AIza&middot;&middot;&middot;&middot;&middot;&middot;</div>
+      </div>
+      <div class="config-actions">
+        <button class="cfg-btn">UPDATE</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <button class="tailor-btn" id="tailorBtn">
+      <span class="btn-text">TAILOR</span>
+      <span class="loader">|</span>
+    </button>
+    <div class="hint-wrap">
+      <div class="hint" id="hintText">Generate a cover letter for this job posting</div>
+    </div>
+
+    <div class="result-card" id="resultCard">
+      <div class="result-status">[OK] COMPLETE</div>
+      <div class="result-title glow">Software Engineer</div>
+      <div class="result-company">at Google</div>
+      <hr class="result-divider">
+      <div class="result-file">Taha-S-Software-Engineer-CoverLetter.pdf</div>
+      <div class="result-actions">
+        <button class="result-btn">COPY</button>
+        <button class="result-btn">DOWNLOAD</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">v1.0.0 // TAILORAI</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const tailorBtn = document.getElementById('tailorBtn');
+  const resultCard = document.getElementById('resultCard');
+  const hintText = document.getElementById('hintText');
+  const btnText = tailorBtn.querySelector('.btn-text');
+  const loader = tailorBtn.querySelector('.loader');
+  let settingsOpen = false;
+  let spinInterval = null;
+
+  /* Spinner character cycling */
+  const spinChars = ['|', '/', '-', '\\'];
+  let spinIdx = 0;
+
+  function startSpinner() {
+    spinIdx = 0;
+    spinInterval = setInterval(() => {
+      spinIdx = (spinIdx + 1) % spinChars.length;
+      loader.textContent = spinChars[spinIdx];
+    }, 100);
+  }
+
+  function stopSpinner() {
+    if (spinInterval) { clearInterval(spinInterval); spinInterval = null; }
+  }
+
+  settingsBtn.addEventListener('click', () => {
+    settingsOpen = !settingsOpen;
+    settingsPanel.style.display = settingsOpen ? 'block' : 'none';
+    document.getElementById('gearIcon').style.display = settingsOpen ? 'none' : 'inline';
+    document.getElementById('closeIcon').style.display = settingsOpen ? 'inline' : 'none';
+  });
+
+  tailorBtn.addEventListener('click', () => {
+    if (tailorBtn.disabled) return;
+    btnText.style.display = 'none';
+    loader.style.display = 'inline-block';
+    startSpinner();
+    tailorBtn.disabled = true;
+    hintText.textContent = 'Extracting job posting...';
+    resultCard.style.display = 'none';
+    setTimeout(() => { hintText.textContent = 'Generating cover letter...'; }, 1200);
+    setTimeout(() => { hintText.textContent = 'Generating PDF...'; }, 2400);
+    setTimeout(() => {
+      stopSpinner();
+      btnText.style.display = 'inline-block';
+      loader.style.display = 'none';
+      tailorBtn.disabled = false;
+      resultCard.style.display = 'block';
+      hintText.textContent = '> Generate another cover letter';
+    }, 3500);
+  });
+});
+</script>
+</body>
+</html>
