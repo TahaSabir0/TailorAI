@@ -10,122 +10,101 @@
 
 <body>
   <div class="container">
+    <!-- Header (always visible) -->
     <div class="header">
       <h1>TailorAI</h1>
-    </div>
-
-    <div class="status-section" id="statusSection">
-      <div class="status-message" id="statusMessage">
-        <svg class="status-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="16" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      <button id="settingsBtn" class="icon-btn" title="Settings" style="display:none">
+        <svg id="settingsIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3"></path>
+          <path d="M19.071 19.071L15.5 15.5m0-7l3.571-3.571M4.929 4.929L8.5 8.5m0 7l-3.571 3.571"></path>
         </svg>
-        <span id="statusText">Upload your CV to get started</span>
-      </div>
+        <svg id="closeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
 
-    <!-- Onboarding Section (visible for first-time users) -->
-    <section id="onboardingSection" class="onboarding-section">
-      <div class="onboarding-progress">Setup: 0/2 complete</div>
-
-      <div class="setting-group">
-        <p class="step-instruction"><span class="step-number">Step 1:</span> Upload your CV (PDF or DOCX)</p>
-        <div class="cv-status" id="cvStatus">
-          <p class="no-cv-text">No CV uploaded yet</p>
+    <!-- Setup cards (only when setup incomplete) -->
+    <div id="setupCards">
+      <div id="apiKeyCard" class="setup-card" style="display:none">
+        <label class="setup-card-label">API Key</label>
+        <div class="setup-card-row">
+          <input type="password" id="apiKeyInput" placeholder="AIza..." />
+          <button id="saveApiKeyBtn" class="compact-btn">Save</button>
         </div>
-        <div class="icon-wrapper">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="upload-icon">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 1-2 2v-4"></path>
-            <polyline points="17 8 12 3 7 8"></polyline>
-            <line x1="12" y1="3" x2="12" y2="15"></line>
-          </svg>
-        </div>
-        <input type="file" id="cvUpload" accept=".pdf,.docx" style="display: none;">
-        <button id="uploadCvBtn" class="secondary-btn">Choose CV File</button>
-      </div>
-
-      <div class="setting-group" style="margin-top: 20px;">
-        <p class="step-instruction"><span class="step-number">Step 2:</span> Add your Gemini API key</p>
-        <div class="icon-wrapper">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="key-icon">
-            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
-          </svg>
-        </div>
-        <input type="password" id="apiKey" placeholder="AIza..." />
-        <button id="saveApiKeyBtn" class="secondary-btn">Save API Key</button>
         <p class="help-text">
-          Get your free API key from
+          Get your free key from
           <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a>
         </p>
       </div>
-    </section>
 
-    <!-- Ready Section (visible for returning users with data) -->
-    <section id="readySection" class="ready-section" style="display: none;">
-      <div class="ready-header">
-        <h2>Ready</h2>
-        <button id="settingsBtn" class="icon-btn" title="Settings">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3"></path>
-            <path d="M19.071 19.071L15.5 15.5m0-7l3.571-3.571M4.929 4.929L8.5 8.5m0 7l-3.571 3.571"></path>
-          </svg>
-        </button>
+      <div id="cvCard" class="setup-card" style="display:none">
+        <label class="setup-card-label">Upload CV</label>
+        <p id="cvCardHint" class="setup-card-hint"></p>
+        <input type="file" id="cvUpload" accept=".pdf,.docx" style="display:none">
+        <button id="uploadCvBtn" class="compact-btn full-width">Choose File</button>
       </div>
+    </div>
 
-      <div class="main-section">
-        <button id="tailorBtn" class="tailor-btn">
-          <span class="btn-text">Tailor</span>
-          <span class="loader" style="display: none;"></span>
-        </button>
-        <p class="hint-text">Click to generate a cover letter for this job posting</p>
-      </div>
-    </section>
-
-    <!-- Settings Section (accessible from ready mode) -->
-    <section id="settingsSection" class="settings-section" style="display: none;">
-      <div class="mode-header">
-        <h2>Settings</h2>
-        <button id="closeSettingsBtn" class="close-btn">×</button>
-      </div>
-
-      <div class="settings-content">
-        <div class="setting-group">
-          <label for="cvUpload">Update CV</label>
-          <div class="cv-status" id="cvStatusSettings">
-            <p class="no-cv-text">No CV uploaded yet</p>
-          </div>
-          <div class="icon-wrapper">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="upload-icon">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-          </div>
-          <input type="file" id="cvUploadSettings" accept=".pdf,.docx" style="display: none;">
-          <button id="uploadCvBtnSettings" class="secondary-btn">Choose CV File</button>
-          <button id="deleteCvBtn" class="danger-btn" style="display: none;">Delete CV</button>
+    <!-- Settings panel (toggled by gear) -->
+    <div id="settingsPanel" style="display:none">
+      <div id="cvSettings" class="settings-card">
+        <label class="settings-card-label">CV</label>
+        <div id="cvSettingsInfo" class="settings-card-info">
+          <span class="settings-card-detail" id="cvFileName"></span>
+          <span class="settings-card-detail" id="cvUserName"></span>
         </div>
-
-        <div class="setting-group">
-          <label for="apiKeySettings">Gemini API Key</label>
-          <div class="icon-wrapper">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="key-icon">
-              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
-            </svg>
-          </div>
-          <input type="password" id="apiKeySettings" placeholder="AIza..." />
-          <button id="saveApiKeyBtnSettings" class="secondary-btn">Save API Key</button>
-          <p class="help-text">
-            Get your free API key from
-            <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a>
-          </p>
+        <div class="settings-card-actions">
+          <input type="file" id="cvUploadSettings" accept=".pdf,.docx" style="display:none">
+          <button id="replaceCvBtn" class="compact-btn">Replace</button>
+          <button id="deleteCvBtn" class="compact-btn danger">Delete</button>
         </div>
       </div>
-    </section>
 
-    <div class="message-section" id="messageSection" style="display: none;">
+      <div id="apiKeySettings" class="settings-card">
+        <label class="settings-card-label">API Key</label>
+        <div id="apiKeyDisplay" class="settings-card-info">
+          <span class="settings-card-detail" id="apiKeyMasked"></span>
+        </div>
+        <div id="apiKeyUpdateRow" class="setup-card-row" style="display:none">
+          <input type="password" id="apiKeyUpdateInput" placeholder="AIza..." />
+          <button id="updateApiKeyBtn" class="compact-btn">Save</button>
+        </div>
+        <button id="showApiKeyUpdateBtn" class="compact-btn">Update</button>
+      </div>
+    </div>
+
+    <!-- Result card (after generation) -->
+    <div id="resultCard" class="result-card" style="display:none">
+      <div class="result-card-header">
+        <svg class="result-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <div class="result-card-titles">
+          <span class="result-job-title" id="resultJobTitle"></span>
+          <span class="result-company" id="resultCompany"></span>
+          <span class="result-filename" id="resultFilename"></span>
+        </div>
+      </div>
+      <div class="result-card-actions">
+        <button id="copyBtn" class="compact-btn">Copy</button>
+        <button id="downloadBtn" class="compact-btn">Download</button>
+      </div>
+    </div>
+
+    <!-- Primary action (always visible) -->
+    <div class="action-section">
+      <button id="tailorBtn" class="tailor-btn" disabled>
+        <span class="btn-text">Tailor</span>
+        <span class="loader" style="display:none"></span>
+      </button>
+      <p id="hintText" class="hint-text">Complete setup to start</p>
+    </div>
+
+    <!-- Toast messages -->
+    <div class="message-section" id="messageSection" style="display:none">
       <p id="messageText"></p>
     </div>
   </div>

@@ -127,22 +127,13 @@ async function extractHandshakeJob() {
   // 1. Get Job Title - Handshake uses the only <h1> for the job title
   const jobTitle = document.querySelector("h1")?.innerText || "";
 
-  // 2. Get Company Name - Use aria-label from employer follow button
+  // 2. Get Company Name - first non-logo employer link text
   let company = "";
-  const employerButton = document.querySelector(
-    'button[aria-label^="Follow this employer"]'
-  );
-  if (employerButton) {
-    // The aria label says "Follow this employer: [Company Name]"
-    company = employerButton
-      .getAttribute("aria-label")
-      .replace("Follow this employer: ", "");
-  } else {
-    // Backup: Look for the text inside the header link
-    const headerLink = document.querySelector(
-      'a[data-size="xlarge"][href^="/e/"]'
-    );
-    if (headerLink) company = headerLink.innerText;
+  const employerLinks = document.querySelectorAll('a[data-size="xlarge"][href^="/e/"]');
+  for (const link of employerLinks) {
+    if (link.querySelector("img")) continue; // Skip logo link
+    company = link.innerText?.trim() || "";
+    if (company) break;
   }
 
   // 3. Get Job Description - Look for the break-word styled container

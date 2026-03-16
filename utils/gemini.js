@@ -103,12 +103,14 @@ async function generateCoverLetter(cvText, jobData, apiKey) {
 /**
  * Build prompt for cover letter generation
  * Based on the Career Fair "Killer Cover Letter" methodology:
- * A cover letter is a marketing tool — structure it around proving fit through evidence.
+ * A cover letter is a marketing tool. Structure it around proving fit through evidence.
  */
 function buildCoverLetterPrompt(cvText, jobData) {
-  const prompt = `You are a cover letter strategist. A cover letter is a marketing tool, not an autobiography. Prove the candidate fits this role by matching their experience to the job's requirements using the employer's own language.
+  const prompt = `You are a cover letter writer. A cover letter is a marketing tool, not an autobiography. Your job is to convince the reader that this candidate is genuinely interested in this specific role AND has the experience to back it up.
 
-WORD LIMIT: 270-320 words. This is a hard constraint — the output renders into a fixed-size single-page PDF. Exceeding 320 words breaks the layout.
+WORD LIMIT: 300-370 words. This is a hard constraint. The output renders into a fixed-size single-page PDF. Exceeding 370 words breaks the layout.
+
+PUNCTUATION RULE: NEVER use em dashes or en dashes in the output. Use commas, periods, semicolons, or colons instead.
 
 CANDIDATE'S CV:
 ${cvText}
@@ -120,9 +122,9 @@ ${jobData.location ? `Location: ${jobData.location}` : ""}
 Description:
 ${jobData.description}
 
-BEFORE WRITING — INTERNAL ANALYSIS (do not output this):
+BEFORE WRITING - INTERNAL ANALYSIS (do not output this):
 
-STEP 1: EXTRACT TECHNICAL REQUIREMENTS (for technical roles)
+STEP 1: EXTRACT REQUIREMENTS
 From the job description, create two lists:
 A. HARD REQUIREMENTS (must-haves):
    - Specific technologies/tools (e.g., "RESTful APIs", "SQL", "Power BI", "Docker", "AWS")
@@ -132,200 +134,122 @@ B. SOFT REQUIREMENTS (nice-to-haves):
    - Methodologies (e.g., "Agile", "CI/CD")
    - General skills (e.g., "problem-solving", "communication")
 
-STEP 2: MATCH CV TO REQUIREMENTS USING TECHNICAL MATCHING HIERARCHY
+STEP 2: MATCH CV TO REQUIREMENTS
 For each hard requirement, find candidate's experience using this priority:
-1. EXACT MATCH: Candidate used the exact technology/tool (highest priority)
-   - If job says "RESTful APIs" and CV shows REST API work → perfect match
+1. EXACT MATCH: Candidate used the exact technology/tool
 2. EQUIVALENT MATCH: Different technology, same category
-   - If job says "Power BI" and CV shows "Tableau" → strong match
-3. TRANSFERABLE SKILL: Related technical work demonstrating capability
-   - If job says "RPA development" and CV shows "automation scripts" → good match
-4. GAP: Candidate lacks this requirement
-   - Note it; we'll address positioning in paragraph 4
+3. TRANSFERABLE SKILL: Related work demonstrating capability
+4. GAP: Candidate lacks this; position transferable skills to cover it
 
 STEP 3: SELECT TOP 2 EXPERIENCES FOR BODY PARAGRAPHS
-CRITICAL: Choose intelligently based on job requirements. Pick the experiences (internship OR project) that BEST match what the job is looking for.
+Pick the experiences (internship, job, OR project) that BEST match what the job is looking for.
 
 SELECTION STRATEGY:
-1. **Analyze job posting signals**:
-   - If job emphasizes: production systems, team collaboration, scale, industry experience → PREFER internships
-   - If job emphasizes: innovation, automation, passion projects, building from scratch → PREFER projects
-   - If job emphasizes: specific technologies you used in both → pick the better story
+- If job emphasizes production systems, team collaboration, scale → PREFER professional experience
+- If job emphasizes innovation, building from scratch → PREFER projects
+- Include at least 1 professional experience when available
+- The second experience should cover different key requirements than the first
 
-2. **General guideline**: Include at least 1 professional experience (internship) to show you can work in a real environment. The second experience should be whatever best demonstrates the other key job requirements.
-
-3. **Possible combinations** (pick what fits the job):
-   - 1 internship + 1 project (most common - shows both professionalism and passion)
-   - 2 internships (if job is very industry/production-focused and projects don't match as well)
-   - 1 internship + 1 academic project (if academic work is highly relevant)
-
-For each experience chosen:
-- Must match job requirements (use exact terminology from job description)
-- Focus on WHY you did it (curiosity, problem-solving, learning) > what metrics you achieved
-- Show technical understanding through problem-solving narrative, not jargon density
-- Tell a story that reveals how you think, not just what you accomplished
-
-STAT DENSITY RULE:
-- Use stats sparingly (1-2 per paragraph max)
-- Prioritize: WHY you did it, WHAT problem you solved, HOW you approached it
-- Then mention outcome/metrics briefly
-- Goal: 60% narrative/problem-solving, 40% stats
-
-STEP 4: IDENTIFY TECHNICAL COMPANY CONNECTION
-For paragraph 4, extract:
-- Specific technical challenges mentioned in the job description (e.g., "heterogeneous system data integration", "real-time data governance", "webhook monitoring")
-- Technical systems/products the company builds
-Then find CV experiences demonstrating understanding of these challenges.
+STEP 4: IDENTIFY WHAT MAKES THIS ROLE/COMPANY INTERESTING
+From the job description, identify:
+- What the role actually involves (responsibilities, challenges, scope)
+- What the company does or builds
+- Why this specific role would be appealing to someone with the candidate's background
+This will be used in paragraph 1 to express genuine interest.
 
 INFERENCE AUTHORIZATION - MAKE IT SOUND HUMAN:
-You have authorization to INFER realistic context around CV facts to create narrative flow. The goal: avoid "CV in paragraph form" by adding connective tissue.
+You may infer realistic context around CV facts to create natural flow.
 
-SAFE TO INFER (interview-safe, adds humanity):
-✅ Problem/frustration that prompted the work: "Deployments were slow," "Data was scattered," "I was spending hours doing [X] manually"
-✅ Curiosity/learning motivations: "I wanted to explore [technology]," "I wondered if I could build," "I was curious about [concept]"
-✅ Personal frustrations (for projects): "I was frustrated with [common problem]," "I kept running into [issue]," "I couldn't find a tool that..."
-✅ Team/user impact: "This freed up the team," "Made releases faster," "Now [users] can..."
-✅ Emotional framing: "frustrating," "time-consuming," "exciting challenge," "ambitious," "harder than I expected"
-✅ Thought process: "I realized," "I decided to," "The challenge was," "The hardest part was," "I experimented with"
-✅ Technical challenges: "getting [system] to work with [system]," "handling edge cases," "making it fast enough," "dealing with [technical constraint]"
+SAFE TO INFER:
+- Problem/frustration that prompted the work: "Deployments were slow," "Data was scattered"
+- Curiosity/learning motivations: "I wanted to explore [technology]"
+- Team/user impact: "This freed up the team," "Made releases faster"
+- Thought process: "I realized," "The challenge was," "The hardest part was"
 
-NOT SAFE TO INFER (creates interview risk):
-❌ Specific numbers not in CV: Don't say "saved 100 hours" if CV doesn't mention it
-❌ Technologies not in CV: Don't add "Redis" or "Kafka" if CV doesn't list them
-❌ Specific people/teams: Don't say "worked with CTO" or "led a team of 5" if CV doesn't say that
-❌ Awards/recognition: Don't invent "employee of the month" or "promoted early"
-❌ Specific companies/clients: Don't name clients or partners not mentioned in CV
-❌ Responsibilities beyond CV scope: Don't claim "managed infrastructure" if CV says "deployed services"
-
-NARRATIVE BALANCE RULE (CRITICAL):
-- Target: ~60% narrative/story/why, ~40% technical details/stats
-- REVERSE the typical approach - focus on WHY and HOW YOU THINK, not what you accomplished
-- Structure: WHY you built it (motivation/curiosity) → HOW you approached it (technical decisions/challenges) → Brief outcome (optional)
-- Max 1-2 stats per paragraph - use them sparingly for impact, not to fill space
-- Show technical understanding through problem-solving narrative, not technology name-dropping
-- Vary sentence length and paragraph opening structure to avoid robotic rhythm
-- Goal: Recruiter learns about your curiosity, problem-solving approach, and passion - NOT a summary of your resume
+NOT SAFE TO INFER:
+- Specific numbers not in CV
+- Technologies not in CV
+- Specific people/teams not mentioned
+- Awards/recognition not mentioned
+- Responsibilities beyond what CV states
 
 WRITE EXACTLY 4 PARAGRAPHS:
 
-PARAGRAPH 1 — INTRO & TRANSITION (~60-75 words):
-CRITICAL: Do NOT open with "I am writing to apply..." or "I am writing to express my interest..." or "I am excited to apply..."
+PARAGRAPH 1 - INTEREST + VALUE PROPOSITION (~60-80 words):
+This is the most important paragraph. A recruiter may only read this one. It must accomplish three things:
 
-STRUCTURE: Hook (1-2 sentences) → Best relevant project/experience with context (2-3 sentences) → Optional transition (1 short sentence)
+1. EXPRESS INTEREST IN THE ROLE: State what role you're applying for and what specifically interests you about it. Reference something concrete from the job description: a responsibility, a challenge, or the kind of work involved.
 
-OPENING HOOK OPTIONS (pick the strongest based on job signals):
-1. **Lead with relevant project/work**: "Last semester, I built [project] because [frustration/curiosity]. When I saw [Company]'s focus on [job requirement], [connection]..."
-2. **Lead with relevant professional experience**: "At [Company], I [relevant work]. When I saw [Company]'s [job title] role focusing on [requirement], [connection]..."
-3. **Lead with curiosity + relevant work**: "I've always been fascinated by [technical concept]. At [Company/Project], I [explored this]..."
-4. **Specific company knowledge + relevant experience**: "I've been following [Company]'s work on [specific product/tech]. At [Your Company/Project], I [relevant work], so when I saw this role, [alignment]..."
+2. EXPRESS INTEREST IN THE COMPANY: Mention something specific about the company: their product, mission, industry, or what they're building. This shows you're not mass-applying.
 
-Pick the hook based on what's most relevant to the job. Don't default to projects if professional experience is more aligned.
+3. QUICK VALUE PROPOSITION: In one sentence, summarize why you're a strong candidate. Reference your most relevant experience area and how it aligns with what the role needs.
 
-AFTER THE HOOK: Describe your most relevant experience (internship or project) with WHY context.
-- Choose the experience that BEST matches the job's core requirements
-- Focus on: Why you did it, what problem you solved, or what you wanted to learn/build
-- Technical details: Mention 1-2 key technologies that align with job, but don't overload
-- Keep to 2-3 sentences max
-- Make it personal and story-driven, not a resume bullet point in paragraph form
+PATTERN: "I am excited to apply for [role] at [Company]. [Something specific about the role or company that interests you]. With [summary of relevant experience], I bring [what you offer that matches what they need]."
 
-OPTIONAL: End with a short, casual transition OR flow directly into paragraph 2.
+Keep it direct, confident, and professional. Do not be generic. Tie your interest to specifics from the job posting.
 
-PARAGRAPH 2 — FIRST SKILL MATCH (~60-75 words):
-The strongest requirement-to-experience match (internship OR project - pick what fits best).
+PARAGRAPH 2 - STRONGEST EXPERIENCE MATCH (~70-85 words):
+Your most relevant experience, the one that best proves you can do this job.
 
-FOR TECHNICAL ROLES:
-Structure: WHY you built it (1-2 sentences) → WHAT/HOW you built it with key technical decisions (2-3 sentences) → Brief outcome (1 sentence, optional).
+STRUCTURE: Context of what you did → specific actions and technologies used → concrete outcomes or impact.
 
-Use this flow:
-1. **LEAD WITH CURIOSITY/MOTIVATION**: Why did you build this? What problem were you trying to solve? What frustrated you? What did you want to learn?
-   - "I was frustrated with [problem], so I built..."
-   - "I wanted to explore [technology/concept], so I..."
-   - "I noticed [pain point] and wondered if..."
+- Lead with what you did and where (role/company or project name)
+- Describe specific, concrete work, not vague summaries
+- Use the job description's terminology where your experience matches
+- Include metrics/numbers from the CV when available (portfolio size, team size, performance gains, etc.)
+- Show scope and impact, not just tasks
 
-2. **DESCRIBE TECHNICAL APPROACH**: Focus on interesting technical decisions or challenges. Show how you think, not just what tools you used.
-   - Don't: "I used React, TypeScript, and Tailwind"
-   - Do: "I needed real-time updates across multiple components, so I built a pub/sub system using React context"
-   - Use job description terminology where relevant, but prioritize clear explanation
+EXAMPLE:
+"In my current role at [Company], I [specific responsibility matching job requirements]. I [concrete action with specific technologies/methods], [resulting in specific outcome]. I also [second concrete action], which [impact/result]."
 
-3. **BRIEF OUTCOME** (optional): If there's a compelling metric or result, mention it briefly. Otherwise skip it.
+PARAGRAPH 3 - SECOND EXPERIENCE MATCH (~70-85 words):
+Your second strongest experience, covering DIFFERENT requirements than paragraph 2.
 
-EXAMPLE (for a data/automation role):
-Bad (stat-heavy, redundant with resume): "At Brainlyne.ai, I built GraphQL APIs and deployed microservices on AWS using Docker and GitHub Actions, reducing deployment time by 15%."
+- Must address different key requirements from the job description
+- Same structure: context → actions → outcomes
+- If paragraph 2 covered technical skills, this could emphasize leadership, scale, or a different technical domain
+- Include metrics where available
 
-Good (project-focused, shows thinking): "I was frustrated watching founders at DeepSpace manually filter hundreds of tech articles daily. I built an AI analyzer using LangChain that could automatically surface relevant trends. The challenge was defining 'relevance' - I experimented with different embeddings and prompt strategies until I hit 92% accuracy. Now it processes 500+ articles daily and the team uses it every morning."
+Start differently from paragraph 2 to avoid repetitive structure. Options:
+- "Previously, I [experience]..." (if chronologically earlier)
+- "At [Company/Project], I [experience]..." (if different context)
+- Lead with the challenge or goal, then your approach
 
-FOR NON-TECHNICAL ROLES: Follow same WHY → HOW → outcome structure.
+PARAGRAPH 4 - CLOSING (~50-65 words):
+Tie everything together and close professionally.
 
-PARAGRAPH 3 — SECOND SKILL MATCH (~60-75 words):
-The second strongest requirement-to-experience match (internship OR project - pick what fits best).
-CRITICAL: This paragraph must cover DIFFERENT technical requirements than paragraph 2. If paragraph 2 covered data processing, paragraph 3 should cover automation/system design/another key requirement.
+STRUCTURE:
+1. Express confidence that your background aligns with the role's needs (1-2 sentences). Reference specific aspects of the role or company to reinforce genuine interest.
+2. Welcome the opportunity to discuss further (1 sentence).
+3. Thank them for their consideration (1 sentence).
 
-VARY THE NARRATIVE APPROACH - Don't start with the same structure as paragraph 2. Options:
-
-1. **Lead with the technical challenge**: "The hardest part of [project] was [technical problem]. I [how you solved it]..."
-2. **Lead with learning goal**: "I wanted to understand [concept/technology] better, so I built [project]..."
-3. **Lead with the 'aha' moment**: "I realized [insight], so I [what you built]..."
-4. **Lead with scale/ambition**: "I challenged myself to build [ambitious thing]..."
-
-TONE SHIFT: Make this paragraph feel different from paragraph 2.
-- If paragraph 2 was about solving frustration → paragraph 3 could be about curiosity/learning
-- If paragraph 2 was technical problem-solving → paragraph 3 could be about building something ambitious
-- Goal: Show different facets of your personality/interests
-
-KEEP IT LIGHT ON STATS: Focus on the interesting technical problem or what you learned. Metrics are optional here.
-
-PARAGRAPH 4 — WHY THIS COMPANY & CLOSE (~60-75 words):
-FOR TECHNICAL ROLES: Reference a specific technical challenge or system mentioned in the job description (e.g., "MSPBots' focus on heterogeneous system integration and real-time data governance aligns with my experience building [specific relevant system]"). Optionally address any gaps from Step 2 by positioning transferable skills (e.g., "While new to the MSP ecosystem, my experience with cross-platform API integration and data pipeline optimization directly translates to [specific job requirement]"). Close with confidence statement and call to action.
-FOR NON-TECHNICAL ROLES: Reference company values/mission and link to candidate's interests. Close with interest in continuing conversation.
+PATTERN: "I would welcome the opportunity to bring my experience in [relevant areas] to [Company]. I am confident that my background in [specific skills/experience] aligns with [what the role requires]. Thank you for your consideration. I look forward to discussing how I can contribute to [Company/team]."
 
 STYLE:
-- Mirror the employer's terminology exactly — ESPECIALLY for technical roles:
-  * If job says "RESTful APIs", write "RESTful APIs" (not "backend services" or "web services")
+- Mirror the employer's terminology exactly:
+  * If job says "RESTful APIs", write "RESTful APIs" (not "backend services")
   * If job says "data modeling", write "data modeling" (not "database design")
-  * If job says "RPA", write "RPA" (not "automation")
-  * This is critical for ATS (Applicant Tracking Systems) keyword matching
-- Numbers > adjectives, examples > claims
+  * This is critical for ATS keyword matching
 - Professional, confident, first-person active voice
-- Show soft skills through action, never state them as traits
-- For technical roles: Lead with technical capabilities, not personal narratives
+- Direct and clear. Every sentence should carry information
+- Show soft skills through actions described, never state them as traits
+- Vary sentence length to sound natural. Mix short and longer sentences
+- Do NOT use transition words to start paragraphs ("Furthermore," "Moreover," "Additionally")
 
-SENTENCE VARIANCE (CRITICAL FOR HUMAN TONE):
-- You MUST vary sentence length. Do not write 3 sentences of the same length in a row.
-- Mix short, punchy sentences (under 10 words) with longer, detailed ones.
-- Use fragments occasionally for emphasis: "The result? 28% increase in completion rates."
-- Avoid starting consecutive sentences with the same structure (e.g., "I built... I developed... I created...").
-- Do NOT use transition words to start paragraphs ("Furthermore," "Moreover," "Additionally").
+FORBIDDEN WORDS/PHRASES - NEVER USE THESE:
+VERBS: delve, foster, leverage, utilize (use "use"), underscore, cultivate, navigate, embrace, resonate, harness, spearhead.
+NOUNS: realm, landscape, tapestry, testament, symphony, synergy, paradigm, journey, arsenal.
+ADJECTIVES: vibrant, bustling, pivotal, transformative, unwavering, intricate, multifaceted, robust, dynamic, cutting-edge, world-class.
+PHRASES: "passionate about," "fast-paced environment," "game-changer," "in today's world," "unlock the potential."
 
-FORBIDDEN WORDS/PHRASES — NEVER USE THESE (AI-generated red flags):
-VERBS: delve, foster, leverage, utilize (use "use" or "used"), underscore, cultivate, navigate, embrace, resonate, harness, unlock, drive (when not literal), spearhead.
-NOUNS: realm, landscape, tapestry, testament, symphony, intersection, synergy, paradigm, nuance, journey, arsenal, ecosystem (unless company uses it).
-ADJECTIVES: vibrant, bustling, pivotal, transformative, unwavering, intricate, multifaceted, robust, dynamic, cutting-edge, world-class, innovative (overused).
-PHRASES: "passionate about," "thrilled," "excited to apply," "I am writing to express my interest," "fast-paced environment," "it is important to note," "game-changer," "in today's world," "unlock the potential," "take this opportunity," "I believe," "I feel."
-
-SHOW, DON'T TELL:
-- Never say you are "passionate," "hardworking," "detail-oriented," or "a team player."
-- Instead, describe a specific action or result that proves it.
-- Bad: "I am passionate about data engineering."
-- Good: "I spent three months optimizing our ETL pipeline, cutting processing time by 40%."
-
-NO FLUFF RULE:
-- Every sentence must contain either: (1) a specific fact, (2) a concrete action, or (3) a quantified result.
-- If a sentence can be removed without losing information, remove it.
-- Bad: "I believe my background makes me well-suited for this position."
-- Good: [Delete this sentence — it says nothing.]
-
-TONE EXAMPLE:
-Bad (AI style): "I am writing to apply for the Software Engineer role. I have always been passionate about coding and I believe my skills would be a great asset to your team."
-Good (human style): "I've been following [Company]'s work on autonomous delivery drones since the Series B raise last year. As a developer who just spent six months optimizing pathfinding algorithms for a similar rover project, I saw your open role and knew I had to apply."
+NOTE ON EXPRESSING INTEREST: Phrases like "I am excited to apply" or "I would welcome the opportunity" are ALLOWED and encouraged. These are normal professional expressions of interest, not cliches. The forbidden list targets AI-sounding filler, not genuine professional language.
 
 FORMAT:
-- No salutation, no sign-off, no contact info, no date, no name — all added separately
+- No salutation, no sign-off, no contact info, no date, no name. All added separately
 - Output ONLY the 4 body paragraphs
-- No bullet points or lists — paragraph form only
-- Avoid the standard 5-paragraph essay structure — do not start paragraphs with transition words like "Furthermore," "Moreover," "Additionally," "In addition"
-- If you need to connect ideas, use action or context, not transition filler
+- No bullet points or lists. Paragraph form only
 
-REMEMBER: 270-320 words maximum. Count carefully.
+REMEMBER: 300-370 words maximum. Count carefully.
 
 Write the cover letter now:`;
 
