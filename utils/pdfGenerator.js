@@ -160,9 +160,9 @@ async function generateCoverLetterPDF(coverLetter, jobData, cvMetadata) {
         document.body.removeChild(container);
 
         // Generate filename
+        const fullName = (cvMetadata?.fullName || 'Applicant').replace(/[^a-zA-Z0-9]/g, '_');
         const companyName = (jobData?.company || 'Company').replace(/[^a-zA-Z0-9]/g, '_');
-        const jobTitle = (jobData?.jobTitle || 'Position').replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
-        const filename = `Cover_Letter_${companyName}_${jobTitle}.pdf`;
+        const filename = `${fullName}_Cover_Letter_${companyName}.pdf`;
 
         // Download the PDF
         pdf.save(filename);
@@ -324,9 +324,9 @@ function generateFallbackPDF(coverLetter, jobData, cvMetadata) {
     doc.text(fullName, margin, yPosition);
 
     // Generate filename and save
+    const sanitizedName = (cvMetadata?.fullName || 'Applicant').replace(/[^a-zA-Z0-9]/g, '_');
     const companyName = (jobData?.company || 'Company').replace(/[^a-zA-Z0-9]/g, '_');
-    const jobTitle = (jobData?.jobTitle || 'Position').replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
-    const filename = `Cover_Letter_${companyName}_${jobTitle}.pdf`;
+    const filename = `${sanitizedName}_Cover_Letter_${companyName}.pdf`;
 
     doc.save(filename);
     return filename;

@@ -16,9 +16,9 @@
     color: #ffffff;
     overflow: hidden;
     position: relative;
-    background: linear-gradient(135deg, #c6f135, #6ee7a0, #2dd4bf, #0fcccc);
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #4facfe);
     background-size: 400% 400%;
-    animation: gradientShift 5s ease infinite;
+    animation: gradientShift 15s ease infinite;
   }
 
   @keyframes gradientShift {
@@ -42,28 +42,28 @@
   .orb-1 {
     width: 180px;
     height: 180px;
-    background: #c6f135;
+    background: #f472b6;
     top: -40px;
     right: -30px;
-    animation: float1 8s ease-in-out infinite;
+    animation: float1 20s ease-in-out infinite;
   }
 
   .orb-2 {
     width: 150px;
     height: 150px;
-    background: #2dd4bf;
+    background: #60a5fa;
     bottom: 60px;
     left: -40px;
-    animation: float2 9s ease-in-out infinite;
+    animation: float2 23s ease-in-out infinite;
   }
 
   .orb-3 {
     width: 120px;
     height: 120px;
-    background: #0f8a6e;
+    background: #a78bfa;
     bottom: -20px;
     right: 40px;
-    animation: float3 7s ease-in-out infinite;
+    animation: float3 18s ease-in-out infinite;
   }
 
   @keyframes float1 {
@@ -129,10 +129,10 @@
 
   /* Glass card mixin */
   .glass {
-    background: rgba(15,43,45,0.45);
+    background: rgba(255,255,255,0.2);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
     border-radius: 16px;
     box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
     transition: all 0.3s;
@@ -140,7 +140,7 @@
 
   .glass:hover {
     transform: scale(1.01);
-    border-color: rgba(255,255,255,0.25);
+    border-color: rgba(255,255,255,0.45);
   }
 
   /* Settings Panel */
@@ -226,7 +226,7 @@
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.5);
     border-radius: 14px;
-    color: #0f2b2d;
+    color: #4c1d95;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 15px;
     font-weight: 700;
@@ -255,8 +255,8 @@
     display: none;
     width: 20px;
     height: 20px;
-    border: 2.5px solid rgba(15,43,45,0.2);
-    border-top: 2.5px solid #0f2b2d;
+    border: 2.5px solid rgba(76,29,149,0.2);
+    border-top: 2.5px solid #4c1d95;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
   }
@@ -272,6 +272,91 @@
     margin-top: 14px;
   }
 
+  /* Result Card */
+  .result-card {
+    display: none;
+    margin-top: 18px;
+    padding: 18px;
+    background: rgba(16,185,129,0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(16,185,129,0.35);
+    border-radius: 16px;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.15);
+  }
+
+  .result-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #34d399;
+    background: rgba(16,185,129,0.2);
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .result-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+
+  .result-company {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 12px;
+  }
+
+  .result-file {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    word-break: break-all;
+  }
+
+  .result-actions { display: flex; gap: 8px; }
+
+  .result-btn {
+    flex: 1;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: center;
+  }
+
+  .result-btn.copy-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+  }
+
+  .result-btn.copy-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-1px);
+  }
+
+  .result-btn.download-btn {
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(255,255,255,0.5);
+    color: #065f46;
+  }
+
+  .result-btn.download-btn:hover {
+    background: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
 </style>
 </head>
 <body>
@@ -326,6 +411,16 @@
 
     <div class="hint-text" id="hintText">Generate a cover letter for this job posting</div>
 
+    <div class="result-card" id="resultCard">
+      <div class="result-badge">Generated</div>
+      <div class="result-title">Software Engineer</div>
+      <div class="result-company">at Google</div>
+      <div class="result-file">Taha-S-Software-Engineer-CoverLetter.pdf</div>
+      <div class="result-actions">
+        <button class="result-btn copy-btn">Copy</button>
+        <button class="result-btn download-btn">Download</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -333,6 +428,7 @@
       const settingsBtn = document.getElementById('settingsBtn');
       const settingsPanel = document.getElementById('settingsPanel');
       const tailorBtn = document.getElementById('tailorBtn');
+      const resultCard = document.getElementById('resultCard');
       const hintText = document.getElementById('hintText');
       const btnText = tailorBtn.querySelector('.btn-text');
       const loader = tailorBtn.querySelector('.loader');
@@ -351,12 +447,14 @@
         loader.style.display = 'inline-block';
         tailorBtn.disabled = true;
         hintText.textContent = 'Extracting job posting...';
+        resultCard.style.display = 'none';
         setTimeout(() => { hintText.textContent = 'Generating cover letter...'; }, 1200);
         setTimeout(() => { hintText.textContent = 'Generating PDF...'; }, 2400);
         setTimeout(() => {
           btnText.style.display = 'inline-block';
           loader.style.display = 'none';
           tailorBtn.disabled = false;
+          resultCard.style.display = 'block';
           hintText.textContent = 'Generate another cover letter';
         }, 3500);
       });

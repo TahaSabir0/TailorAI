@@ -12,14 +12,16 @@
   <div class="container">
     <!-- Header (always visible) -->
     <div class="header">
-      <h1>TailorAI</h1>
-      <button id="settingsBtn" class="icon-btn" title="Settings" style="display:none">
-        <svg id="settingsIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <div class="title-group">
+        <h1>TailorAI</h1>
+        <span class="header-sub">Cover Letter Studio</span>
+      </div>
+      <button id="settingsBtn" class="icon-btn" title="Settings" style="display:none" aria-label="Settings">
+        <svg id="settingsIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
-          <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3"></path>
-          <path d="M19.071 19.071L15.5 15.5m0-7l3.571-3.571M4.929 4.929L8.5 8.5m0 7l-3.571 3.571"></path>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
-        <svg id="closeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <svg id="closeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="display:none">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
@@ -51,7 +53,7 @@
     <!-- Settings panel (toggled by gear) -->
     <div id="settingsPanel" style="display:none">
       <div id="cvSettings" class="settings-card">
-        <label class="settings-card-label">CV</label>
+        <label class="settings-card-label">Resume</label>
         <div id="cvSettingsInfo" class="settings-card-info">
           <span class="settings-card-detail" id="cvFileName"></span>
           <span class="settings-card-detail" id="cvUserName"></span>
@@ -62,6 +64,8 @@
           <button id="deleteCvBtn" class="compact-btn danger">Delete</button>
         </div>
       </div>
+
+      <div class="settings-divider"></div>
 
       <div id="apiKeySettings" class="settings-card">
         <label class="settings-card-label">API Key</label>
@@ -89,17 +93,18 @@
         </div>
       </div>
       <div class="result-card-actions">
-        <button id="copyBtn" class="compact-btn">Copy</button>
-        <button id="downloadBtn" class="compact-btn">Download</button>
+        <button id="copyBtn" class="compact-btn">Copy Text</button>
+        <button id="downloadBtn" class="compact-btn">Download PDF</button>
       </div>
     </div>
 
     <!-- Primary action (always visible) -->
     <div class="action-section">
       <button id="tailorBtn" class="tailor-btn" disabled>
-        <span class="btn-text">Tailor</span>
+        <span class="btn-text">Tailor Cover Letter</span>
         <span class="loader" style="display:none"></span>
       </button>
+      <div class="hint-rule"></div>
       <p id="hintText" class="hint-text">Complete setup to start</p>
     </div>
 
